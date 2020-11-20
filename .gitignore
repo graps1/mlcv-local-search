@@ -1,0 +1,12 @@
+*.xopp
+*.pdf
+*.xopp~
+*.md
+tex/*.aux
+tex/*.axp
+tex/*.fdb_latexmk
+tex/*.fls
+tex/*.log
+tex/*.synctex.gz
+*.ipynb_checkpoints
+*__pycache__
