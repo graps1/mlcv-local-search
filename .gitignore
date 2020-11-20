@@ -1,5 +1,6 @@
 *.xopp
-*.pdf
+aufgabenstellung.pdf
+ml1-lecture-notes.pdf
 *.xopp~
 *.md
 tex/*.aux
