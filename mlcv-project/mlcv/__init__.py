@@ -3,8 +3,8 @@ from .algorithm import (
     partial_cost, 
     sample_cost, 
     neighbours, 
-    sample_move_diff_cost,
-    move_diff_cost )
+    sample_reduced_cost,
+    reduced_cost )
 from .planes import (
     cf, 
     cf_prime, 

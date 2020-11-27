@@ -1,17 +1,23 @@
 import numpy as np
-import pandas as pd
 
-def cf(data, u,v,w):
-    return 0
+def cf(data, combs):
+    return np.zeros(combs.shape)
 
-def cf_prime(data,u,v,w,dthr=0.1):
-    # this could be much faster if we didn't use numpy
+def cf_prime(data,combs,dthr=0.1):
     # compute distance between plane created by points u,v,w and origin (0,0,0)
-    points = data.loc[[u,v,w],["x","y","z"]].to_numpy()
-    n = np.cross(points[1,:] - points[0,:], points[2,:] - points[0,:])
-    d = abs(n.dot(points[0,:])/np.linalg.norm(n))
-    # returns d-dthr if d>dthr and 0 otherwise
-    return max(d-dthr, 0)
+    planes = np.stack(( data[combs[:,0]],
+                        data[combs[:,1]],
+                        data[combs[:,2]] ))
+    # points.shape == (#comb-len=3, #combinations, #pointdimension=3)
+    # compute normal vectors -> shape == (#combinations, #pointdimension=3)
+    n = np.cross(planes[1,:,:] - planes[0,:,:], planes[2,:,:] - planes[0,:,:])
+    # computes multiple dot products at once 
+    # -> shape == (#combinations, 1)
+    dots = np.einsum("ij,ij->i",n,planes[0,:,:])
+    # computes the distances by normalizing dot products
+    # -> shape == (#combinations, 1)
+    d = np.abs(dots/np.linalg.norm(n,axis=1))
+    return d - dthr
 
 def draw_points_from_plane(nr_points, normal_vector, orientation, noise):
     points2d = np.random.uniform(-1,1, size=(nr_points,2,1))
@@ -56,7 +62,7 @@ def generate_points(
     orientations = orientations/np.linalg.norm(orientations, axis=0)[None,:]
 
     # draw random points for each plane
-    df = pd.DataFrame()
+    data, partition = None, None
     for idx, pointcount in enumerate(distribution):
         # draw points from R^2 with noise and compute their
         # position on the plane
@@ -65,11 +71,12 @@ def generate_points(
             normal_vectors[:,idx],
             orientations[:,idx],
             noise[idx])
-        df = pd.concat([df, pd.DataFrame(
-            { "x": samples[:,0],
-              "y": samples[:,1],
-              "z": samples[:,2],
-              "partition": np.ones(pointcount, dtype=np.int)*idx }) ],
-              ignore_index=True)
+        if data is None:
+            data = samples
+            partition = np.ones(pointcount, dtype=np.int)*idx
+        else:
+            data = np.vstack((data, samples))
+            partition = np.hstack((partition, 
+                                   np.ones(pointcount, dtype=np.int)*idx))
 
-    return df
+    return data, partition
