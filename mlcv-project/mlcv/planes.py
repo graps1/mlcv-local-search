@@ -1,9 +1,19 @@
 import numpy as np
 
-def cf(data, combs):
-    return np.zeros(combs.shape)
 
-def cf_prime(data,combs,dthr=0.1):
+def distance_to_points(data,points,combs):
+    """for each 3-ary vertex-pairing, computes the matching plane and its distance
+    to a given set of points.
+
+    :param data: the dataset containing 3d-points for n vertices
+    :type data: np.array[n,3,dtype=float]
+    :param combs: selection of m 3-ary subsets of vertices
+    :type combs: np.array[m,3,dtype=int]
+    :param points: array containing m times 3d-points
+    :type points: np.array[m,3,dtype=float]
+    :return: an array containing the distances for each entry in combs
+    :rtype: np.array[m,dtype=float]
+    """    
     # compute distance between plane created by points u,v,w and origin (0,0,0)
     planes = np.stack(( data[combs[:,0]],
                         data[combs[:,1]],
@@ -13,11 +23,26 @@ def cf_prime(data,combs,dthr=0.1):
     n = np.cross(planes[1,:,:] - planes[0,:,:], planes[2,:,:] - planes[0,:,:])
     # computes multiple dot products at once 
     # -> shape == (#combinations, 1)
-    dots = np.einsum("ij,ij->i",n,planes[0,:,:])
+    dots = np.einsum("ij,ij->i",n,planes[0,:,:]-points)
     # computes the distances by normalizing dot products
     # -> shape == (#combinations, 1)
     d = np.abs(dots/np.linalg.norm(n,axis=1))
-    return d - dthr
+    return d
+
+
+def distance_to_origin(data,combs):
+    """for each 3-ary vertex-pairing, computes the matching plane and its distance
+    to the coordinate origin.
+
+    :param data: the dataset containing 3d-points for n vertices
+    :type data: np.array[n,3,dtype=float]
+    :param combs: selection of m 3-ary subsets of vertices
+    :type combs: np.array[m,3,dtype=int]
+    :return: an array containing the distances for each entry in combs
+    :rtype: np.array[m,dtype=float]
+    """
+    return distance_to_points(data, np.zeros(combs.shape), combs)
+
 
 def draw_points_from_plane(nr_points, normal_vector, orientation, noise):
     points2d = np.random.uniform(-1,1, size=(nr_points,2,1))

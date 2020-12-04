@@ -1,5 +1,5 @@
 \section{Indexings as Proxies for Partitions}
-Since we want to use a local search algorithm that iteratively finds better solutions (partitions in this case), the second consideration is on how we want to represent said partitions. One may represent a partition as a set of sets of vertices, which is probably the most straight-forward approach. On the one hand, the required space is linear in $n$. But on the other hand, this comes with a few problems: checking if two vertices are part of the same set, and the removal and the addition of a vertex from or to a set all require $n$ steps in the worst case (if all vertices have the same set). A last problem is that one has to gurantee consistency at every step, i.e. that every solution is indeed a partition. A second idea might be to store a partition as a $n \times n$ boolean matrix, where every row corresponds to a vertex and every column to a set in the partition, and an entry at position $i,j$ would mean ``vertex $i$ is part of set $j$'' if $1$ and ``vertex $i$ is not part of set $j$'' if $0$. This would alleviate some of the above problems, since looking up, removal or addition of vertices to sets would take constant time in the worst case. However, storing a partition would require $n^2$ units of space, which might become problematic when $n$ is large or when considering multiple partitions at once.
+Since we want to use a local search algorithm that iteratively finds better solutions (partitions in this case), we want to consider on how we want to represent said partitions. One may represent a partition as a set of sets of vertices, which is probably the most straight-forward approach. On the one hand, the required space is linear in $n$. But on the other hand, this comes with a few problems: checking if two vertices are part of the same set, and the removal and the addition of a vertex from or to a set all require $n$ steps in the worst case (if all vertices have the same set). A last problem is that one has to gurantee feasibility at every step, i.e. that every solution is indeed a partition. A second idea might be to store a partition as a $n \times n$ boolean matrix, where every row corresponds to a vertex and every column to a set in the partition, and an entry at position $i,j$ would mean ``vertex $i$ is part of set $j$'' if $1$ and ``vertex $i$ is not part of set $j$'' if $0$. This would alleviate some of the above problems, since looking up, removal or addition of vertices to sets would take constant time in the worst case. However, storing a partition would require $n^2$ units of space, which might become problematic when $n$ is large or when considering multiple partitions at once.
 
 Therefore, we will use the following concept of indexings (which are similar to equivalence relations) to solve the above problems, i.e. to simplify and speed up operations on partitions. Every vertex is mapped to a number (index) which indicates the set in the partition we want this vertex to be a part of. If multiple vertices are mapped to the same index, they will be part of the same set in the partition. Since there are at maximum $n$ sets in a partition of $V$ (every vertex is assigned its own set, i.e. the indexing is bijective), we restrict to indices between $1$ and $n$. Note that every indexing can be stored in a linear amount of memory dependent on the size of $V$.
 
@@ -10,9 +10,9 @@ Therefore, we will use the following concept of indexings (which are similar to 
     
     \foreach \s in {1,...,5} {
         \node[draw, circle] (vl\s) at (0,5-\s) {$v_\s$};
-        \node[draw, circle] (nl\s) at (3,5-\s) {$\s$};
-        \node[draw, circle] (nr\s) at (6,5-\s) {$\s$};
-        \node[draw, circle] (vr\s) at (9,5-\s) {$v_\s$};
+        \node[draw, circle] (nl\s) at (2,5-\s) {$\s$};
+        \node[draw, circle] (nr\s) at (4,5-\s) {$\s$};
+        \node[draw, circle] (vr\s) at (6,5-\s) {$v_\s$};
     }
 
     \draw[->] (vl1) -- (nl2);
@@ -31,28 +31,28 @@ Therefore, we will use the following concept of indexings (which are similar to 
     \draw[->] (nl5) -- (nr3);
 
 
-    \draw [decorate,decoration={brace,amplitude=5pt,mirror,raise=4ex}](0.1,0) -- (2.9,0) node[midway,yshift=-3em]{$\idx$};
+    \draw [decorate,decoration={brace,amplitude=5pt,mirror,raise=4ex}](0.1,0) -- (1.9,0) node[midway,yshift=-3em]{$\idx$};
 
-    \draw [decorate,decoration={brace,amplitude=5pt,mirror,raise=4ex}](3.1,0) -- (5.9,0) node[midway,yshift=-3em]{$\lambda$};
+    \draw [decorate,decoration={brace,amplitude=5pt,mirror,raise=4ex}](2.1,0) -- (3.9,0) node[midway,yshift=-3em]{$\lambda$};
 
-    \draw [decorate,decoration={brace,amplitude=5pt,mirror,raise=4ex}](6.1,0) -- (8.9,0) node[midway,yshift=-3em]{$\idx'$};
+    \draw [decorate,decoration={brace,amplitude=5pt,mirror,raise=4ex}](4.1,0) -- (5.9,0) node[midway,yshift=-3em]{$\varidx$};
 
     \node at (0,5) {$\Pi(\idx)$};
-    \draw [decorate,decoration={brace,amplitude=5pt,raise=4ex},xshift=-4pt,yshift=0pt](0,-0.4) -- (0,2.4) node [black,midway,xshift=-2.7cm] {$[v_3]_\idx = [v_4]_\idx = [v_5]_\idx$};
-    \draw [decorate,decoration={brace,amplitude=5pt,raise=4ex},xshift=-4pt,yshift=0pt](0,2.6) -- (0,4.4) node [black,midway,xshift=-2.1cm] {$[v_1]_\idx = [v_2]_\idx$};
+    \draw [decorate,decoration={brace,amplitude=5pt,raise=4ex},xshift=-4pt,yshift=0pt,align=right](0,-0.4) -- (0,2.4) node [black,midway,xshift=-2.8cm] {$[v_3]_\idx = [v_4]_\idx = [v_5]_\idx$ \\ $= \{v_3,v_4,v_5\}$};
+    \draw [decorate,decoration={brace,amplitude=5pt,raise=4ex},xshift=-4pt,yshift=0pt,align=right](0,2.6) -- (0,4.4) node [black,midway,xshift=-2.1cm] {$[v_1]_\idx = [v_2]_\idx$\\ $= \{v_1,v_2\}$};
     \draw[rounded corners=5pt, dashed] (-0.5,-0.45) rectangle (0.5,2.45);
     \draw[rounded corners=5pt, dashed] (-0.5,3-0.45) rectangle (0.5,3+1.45);
 
-    \node at (9,5) {$\Pi(\idx')$};
-    \draw[rounded corners=5pt, dashed] (9-0.5,-0.45) rectangle (9+0.5,2.45);
-    \draw[rounded corners=5pt, dashed] (9-0.5,3-0.45) rectangle (9+0.5,3+1.45);
+    \node at (6,5) {$\Pi(\varidx)$};
+    \draw[rounded corners=5pt, dashed] (6-0.5,-0.45) rectangle (6+0.5,2.45);
+    \draw[rounded corners=5pt, dashed] (6-0.5,3-0.45) rectangle (6+0.5,3+1.45);
 
     \end{tikzpicture}
-    \caption{Illustration of two indexings $\idx,\idx'$ with corresponding partitions and proof of equality through part (b) of Theorem \ref{theorem:equal_indexings}.}\label{fig:indexings}
+    \caption{Illustration of two indexings $\idx,\varidx$ with corresponding partitions and proof of equality through part (b) of Theorem \ref{theorem:equal_indexings}.}\label{fig:indexings}
 \end{figure}
 
 \begin{definition}
-    Let $V = \{ v_1,v_2,\dots, v_n \}$ be a set of $n$ vertices. An indexing of $V$ is a mapping $\idx \in \{ 1,\dots,n \}^V = [n]^V$ that associates every vertex with a number from 1 to $n$.
+    Let $V = \{ v_1,v_2,\dots, v_n \}$ be a set of $n$ vertices. An indexing of $V$ is a mapping $\idx \in \{ 1,\dots,n \}^V = [n]^V$ that associates every vertex with a number from 1 to $n$. \label{def:indexings}
 \end{definition}
 
 \begin{definition}
@@ -60,200 +60,262 @@ Therefore, we will use the following concept of indexings (which are similar to 
     \begin{equation}
         \Pi(\idx)= \{ [v]_\idx : v \in V \}, \label{eq:indexing}
     \end{equation}
-    where $[v]_\idx = \{ w \in V : \idx(w) = \idx(v) \}$.
+    where $[v]_\idx = \{ w \in V : \idx(w) = \idx(v) \}$. \label{def:indexing_partition}
 \end{definition}
 
-Based on this definition, we are able to obtain some immediate results (proofs in the appendix). First, we are able to use indexings as representations for partitions, i.e. for every partition, there is some indexing that yields that very partition (Lemma \ref{lemma:indexing_partition}). And two, we obtain a criteria that makes it possible to check when two vertices share the same set in the partition (Lemma \ref{lemma:indexing_same_set}).  
+Based on definition \ref{def:indexings} and \ref{def:indexing_partition}, we are able to obtain some immediate results (proofs that are too long are in the appendix). First, we are able to use indexings as representations for partitions, i.e. for every partition, there is some indexing that yields that very partition (Lemma \ref{lemma:indexing_partition}). And two, we obtain a criteria that makes it possible to check when two vertices share the same set in the partition (Lemma \ref{lemma:indexing_same_set}).  
 
-\pagebreak 
 \begin{lemmarep}
-    $\Pi$ is a partition of $V$ if and only if there exists an indexing of $V$ that induces $\Pi$.\label{lemma:indexing_partition}
+    $\Pi$ partitions $V$ if and only if there exists an indexing of $V$ that induces $\Pi$.\label{lemma:indexing_partition}
 \end{lemmarep}
-\begin{appendixproof}
+\begin{\appendixproof}
     First, we will show the direction from left to right. Let $\Pi = \{U_1,\dots,U_m\}$, $1\leq m \leq n$, be a partition of $V$. For all vertices $v$ with corresponding set $U_i$ in $\Pi$ (of which there is exactly one), we define $\idx(v) = i$. For a $j \in \{1,\dots,m\}$ we then obtain $\idx^{-1}(j) = U_j$. But then $\Pi(\idx) = \Pi$, i.e. $\Pi$ is induced by $\idx$. 
     \\
     The other direction requires us to prove that every indexing induces a partition of $V$. I.e., for an indexing $\idx$ of $V$ with $\Pi(\idx)=\Pi$, we need to check the following requirements:
     \begin{enumerate}
-        \item $\emptyset \not\in \Pi$:\quad This is obvious from \eqref{eq:indexing}, since every element $[v]_\idx \in \Pi$ contains at least $v$. %https://en.wikipedia.org/wiki/Partition_of_a_set
+        \item $\emptyset \not\in \Pi$:\quad This is obvious from \eqref{eq:indexing}, since every element $[v]_\idx \in \Pi$ contains $v$. %https://en.wikipedia.org/wiki/Partition_of_a_set
         \item $\bigcup_{U \in \Pi} U = V$:\quad ``$\subseteq$'' is obvious. For ``$\supseteq$'', take a vertex $v$. Then, $v \in [v]_\idx$ and since $[v]_\idx \in \Pi(\idx)$, we obtain $v \in \bigcup_{U \in \Pi} U$.
         \item if $U_1,U_2 \in \Pi$ and $U_1 \neq U_2$, then $U_1 \cap U_2 = \emptyset$:\quad Take two $U_1, U_2 \in \Pi$ with $U_1 \neq U_2$ such that $U_1 = [w]_\idx$ and $U_2 = [u]_\idx$ for two vertices $w$ and $u$. Assume for a contradiction that $U_1 \cap U_2 \neq \emptyset$, i.e. there exists $v \in U_1 \cap U_2$. But then $v \in [w]_\idx$ and $v \in [u]_\idx$. Thus, $\idx(v) = \idx(w) = \idx(u)$, which cannot be the case, since that would imply $U_1 = U_2$.
     \end{enumerate}
     This completes the proof.
-\end{appendixproof}
+\end{\appendixproof}
 
 \begin{lemmarep}
     Let $\idx$ be an indexing of $V$. For all vertices $v,u$, we have $\idx(v) = \idx(u)$ if and only if $v$ and $u$ are part of the same set in $\Pi(\idx)$. \label{lemma:indexing_same_set}
 \end{lemmarep}
-\begin{appendixproof}
+\begin{\appendixproof}
     For the direction from left to right, take $v,u\in V$ such that $\idx(v)=\idx(u)$. Then $v,u \in [v]_\idx = [u]_\idx \in \Pi(\idx)$, i.e. they are part of the same set. For the other direction, we will show the contraposition. Take $v,u\in V$ such that $\idx(v)\neq \idx(u)$. Clearly, $v \in [v]_\idx$ and $v \not\in [u]_\idx$ as well as $u \in [u]_\idx$ and $u \not\in [v]_\idx$. Therefore $[v]_\idx \neq [u]_\idx$. Since by Lemma \ref{lemma:indexing_partition}, $\Pi(\idx)$ is a partition and $[v]_\idx$ and $[u]_\idx$ are distinct sets in $\Pi(\idx)$, $[v]_\idx$ is the only set that contains $v$ and vice versa for $[u]_\idx$ and $u$. Thus, $v$ and $u$ cannot be part of the same set in $\Pi(\idx)$. 
-\end{appendixproof}
+\end{\appendixproof}
 
 Since we want to use indexings in order to define transformations on partitions, we are interested in the question when two indexings are ``equal'', in the sense that they induce the same partition. This is characterized in part by Theorem \ref{theorem:equal_indexings}.
 
 \begin{theoremrep}
-    If $\idx,\idx'$ are two indexings of $V$, then the following statements are equivalent:
+    If $\idx,\varidx$ are two indexings of $V$, then the following statements are equivalent:
     \begin{enumerate}
-        \item[(a)] $\Pi(\idx)=\Pi(\idx')$
-        \item[(b)] there is a bijection $\lambda : \image(\idx) \rightarrow \image(\idx')$\footnote{$\image(\idx)$ means the image of $\idx$, i.e. $\image(\idx)=\{ \idx(v) \}_{v \in V}$.} such that $\lambda(\idx(v)) = \idx'(v)$ for all $v \in V$
-        \item[(c)] for all vertices $v,w$, $\idx(w) = \idx(v)$ if and only if $\idx'(w) = \idx'(v)$
+        \item[(a)] $\Pi(\idx)=\Pi(\varidx)$
+        \item[(b)] there is a bijection $\lambda : \image(\idx) \rightarrow \image(\varidx)$\footnote{$\image(\idx)$ means the image of $\idx$, i.e. $\image(\idx)=\{ \idx(v) \}_{v \in V}$.} such that $\lambda(\idx(v)) = \varidx(v)$ \\ for all $v \in V$
+        \item[(c)] for all vertices $v,w$, $\idx(w) = \idx(v)$ if and only if $\varidx(w) = \varidx(v)$
     \end{enumerate} \label{theorem:equal_indexings}
 \end{theoremrep}
-\begin{appendixproof}
-    We will start with the direction from (a) to (b). Let $\idx$, $\idx'$ be two indexings of $V$ with $\Pi(\idx) = \Pi(\idx')$. We define $\lambda : \image(\idx)\rightarrow \image(\idx')$ as follows. For all $k \in \image(\idx)$, associate a vertex $v$ such that $\idx(v)=k$. Then define $\lambda(k)=\idx'(v)$. It remains to show that $\lambda$ fulfills the requirements in (b):
+\begin{\appendixproof}
+    We will start with the direction from (a) to (b). Let $\idx$, $\varidx$ be two indexings of $V$ with $\Pi(\idx) = \Pi(\varidx)$. We define $\lambda : \image(\idx)\rightarrow \image(\varidx)$ as follows. For all $k \in \image(\idx)$, associate a vertex $v$ such that $\idx(v)=k$. Then define $\lambda(k)=\varidx(v)$. It remains to show that $\lambda$ fulfills the requirements in (b):
     \begin{enumerate}
-        \item $\lambda$ is bijective:\quad Since every element in $\image(\idx)$ corresponds to a set in $\Pi(\idx)$, and vice versa for $\image(\idx')$ and $\Pi(\idx')$, we get $|\image(\idx)|=|\Pi(\idx)|=|\Pi(\idx')|=|\image(\idx')|$. Since $\image(\idx)$ and $\image(\idx')$ are also finite, it suffices to show injectivity of $\lambda$ in order to prove bijectivity. Assume for a contradiction that $\lambda$ is not injective, i.e. there are $v_1,v_2 \in V, \idx(v_1) \neq \idx(v_2)$, such that $\lambda(\idx(v_1))=\lambda(\idx(v_2))=\idx'(v_1)=\idx'(v_2)$. Thus, by application of Lemma \ref{lemma:indexing_same_set}, there must be a set in $\Pi(\idx')$ that contains $v_1$ and $v_2$, while there is no set in $\Pi(\idx)$ that has both vertices in it. But then $\Pi(\idx)\neq \Pi(\idx')$. Contradiction.
-        \item For all vertices $v$, $\lambda(\idx(v)) = \idx'(v)$: \quad Take an arbitrary vertex $v$ and let $\idx(v) = k \in \image(\idx)$. Let $\bar{v}$ be the vertex that was previously associated with $k$ in the definition of $\lambda$, i.e. the vertex for which $\idx(\bar{v})=k = \idx(v)$ and $\lambda(\idx(\bar{v}))=\idx'(\bar{v})$ holds. Assume for a contradiction that $\idx'(v)\neq \idx'(\bar{v})$. By Lemma \ref{lemma:indexing_same_set}, this yields that there is no set in $\Pi(\idx')$ that contains both $v$ and $\bar{v}$, while there is one in $\Pi(\idx)$. But then again $\Pi(\idx) \neq \Pi(\idx')$, i.e. a contradiction. Thus, $\lambda(\idx(v)) = \lambda(\idx(\bar{v})) = \idx'(\bar{v}) = \idx'(v)$. 
+        \item $\lambda$ is bijective:\quad Since every element in $\image(\idx)$ corresponds to a set in $\Pi(\idx)$, and vice versa for $\image(\varidx)$ and $\Pi(\varidx)$, we get $|\image(\idx)|=|\Pi(\idx)|=|\Pi(\varidx)|=|\image(\varidx)|$. Since $\image(\idx)$ and $\image(\varidx)$ are also finite, it suffices to show injectivity of $\lambda$ in order to prove bijectivity. Assume for a contradiction that $\lambda$ is not injective, i.e. there are $v_1,v_2 \in V, \idx(v_1) \neq \idx(v_2)$, such that $\lambda(\idx(v_1))=\lambda(\idx(v_2))=\varidx(v_1)=\varidx(v_2)$. Thus, by application of Lemma \ref{lemma:indexing_same_set}, there must be a set in $\Pi(\varidx)$ that contains $v_1$ and $v_2$, while there is no set in $\Pi(\idx)$ that has both vertices in it. But then $\Pi(\idx)\neq \Pi(\varidx)$. Contradiction.
+        \item For all vertices $v$, $\lambda(\idx(v)) = \varidx(v)$: \quad Take an arbitrary vertex $v$ and let $\idx(v) = k \in \image(\idx)$. Let $\bar{v}$ be the vertex that was previously associated with $k$ in the definition of $\lambda$, i.e. the vertex for which $\idx(\bar{v})=k = \idx(v)$ and $\lambda(\idx(\bar{v}))=\varidx(\bar{v})$ holds. Assume for a contradiction that $\varidx(v)\neq \varidx(\bar{v})$. By Lemma \ref{lemma:indexing_same_set}, this yields that there is no set in $\Pi(\varidx)$ that contains both $v$ and $\bar{v}$, while there is one in $\Pi(\idx)$. But then again $\Pi(\idx) \neq \Pi(\varidx)$, i.e. a contradiction. Thus, $\lambda(\idx(v)) = \lambda(\idx(\bar{v})) = \varidx(\bar{v}) = \varidx(v)$. 
     \end{enumerate}
-    This concludes this direction. For the direction from (b) to (c), let $\lambda$ be a bijection between the images of two indexings $\idx, \idx'$ of $V$ that fulfills the requirements in (b). Let $w,v$ be two arbitrary vertices; then
+    This concludes this direction. For the direction from (b) to (c), let $\lambda$ be a bijection between the images of two indexings $\idx, \varidx$ of $V$ that fulfills the requirements in (b). Let $w,v$ be two arbitrary vertices; then
     \begin{align*}
         \idx(w) = \idx(v) &\quad\text{iff}\quad \lambda(\idx(w)) = \lambda(\idx(v)) &(*) \\ 
-        &\quad\text{iff}\quad \idx'(w) = \idx'(v) &(**)
+        &\quad\text{iff}\quad \varidx(w) = \varidx(v) &(**)
     \end{align*}
-    The first identity $(*)$ works since $\lambda$ is a bijection and the second $(**)$ since $\lambda(\idx(w))=\idx'(w)$ for all vertices $w$.
+    The first identity $(*)$ works since $\lambda$ is a bijection and the second $(**)$ since $\lambda(\idx(w))=\varidx(w)$ for all vertices $w$.
     The remainder (c) to (a) is relatively trivial: If we assume premise (c), then
     \begin{align*}
         U \in \Pi(\idx) &\quad\text{iff}\quad U = [v]_\idx \text{ for a vertex $v$} \\
         &\quad\text{iff}\quad U = \{ w \in V : \idx(w) = \idx(v) \} \text{ for a vertex $v$} \\
-        &\quad\text{iff}\quad U = \{ w \in V : \idx'(w) = \idx'(v) \} \text{ for a vertex $v$} \\ 
-        &\quad\text{iff}\quad U = [v]_{\idx'} \text{ for a vertex $v$} \\
-        &\quad\text{iff}\quad U \in \Pi(\idx'),
+        &\quad\text{iff}\quad U = \{ w \in V : \varidx(w) = \varidx(v) \} \text{ for a vertex $v$} \\ 
+        &\quad\text{iff}\quad U = [v]_{\varidx} \text{ for a vertex $v$} \\
+        &\quad\text{iff}\quad U \in \Pi(\varidx),
     \end{align*}
-    which shows $\Pi(\idx)=\Pi(\idx')$.
-\end{appendixproof}
+    which shows $\Pi(\idx)=\Pi(\varidx)$.
+\end{\appendixproof}
 
-If the task is to determine whether two induced partitions $\Pi(\idx)$, $\Pi(\idx')$ for given indexings $\idx,\idx'$ of $V$ are equal, the result of Theorem \ref{theorem:equal_indexings} might be useful: instead of explicitly computing the resulting partitions and checking if both sets are equal, one can simply determine whether a fitting bijection $\lambda$ exists, which is arguably easier. In fact, one can construct $\lambda$ as in the first part of the proof of Lemma \ref{theorem:equal_indexings} and then check whether the result is a bijection or not. Figure \ref{fig:indexings} illustrates two indexings, their partitions and some of the findings of Theorem \ref{theorem:equal_indexings}.
+If the task is to determine whether two induced partitions $\Pi(\idx)$, $\Pi(\varidx)$ for given indexings $\idx,\varidx$ of $V$ are equal, the result of Theorem \ref{theorem:equal_indexings} might be useful: instead of explicitly computing the resulting partitions and checking if both sets are equal, one can simply determine whether a fitting bijection $\lambda$ exists, which is arguably easier. In fact, one can construct $\lambda$ as in the first part of the proof of Lemma \ref{theorem:equal_indexings} and then check whether the result is a bijection or not. Figure \ref{fig:indexings} illustrates two indexings, their partitions and some of the findings of Theorem \ref{theorem:equal_indexings}.
 
 
 \section{Move-Operation on Indexings}
 
-We will now define the ``move''-operation on indexings, which transforms an indexing into another indexing by changing the assigned index of a vertex. The effect this has on the induced partition is that the respective vertex is ``taken'' from its original set\footnote{i.e. the set $[v]_\idx$} and then ``put into'' some other set\footnote{i.e. the set $\idx^{-1}(k)$, where $k$ is some number between $1$ and $n$}. This is then defined as $\move: [n]^V \times V \times [n] \rightarrow [n]^V$ with 
+We will now define the ``move''-operation on indexings, which transforms an indexing into another indexing by changing the assigned index of a vertex. The effect this has on the induced partition is that the respective vertex is ``taken'' from its original set\footnote{i.e. the set $[v]_\idx$} and then ``put into'' some other set. This is then defined as
 \begin{equation} 
-\move(\idx, v, k)(u) = \begin{cases}
+\move{\idx}{ v}{ k}(u) = \begin{cases}
     \idx(u) & u \neq v, \\ 
     k & u = v
 \end{cases} \label{eq:move-operation}
 \end{equation} 
 for every vertex $u$. The operation takes as input an indexing $\idx$, a vertex $v$ and new index $k$ and outputs a new indexing that is essentially the same as $\idx$, with the only difference being that $v$ is mapped to $k$ instead of whatever it was mapped to before.
-\\ \\
-In many cases, there are multiple ways of moving one vertex to different indices while still inducing the same partition afterwards. For example, if $v$ is an arbitrary vertex, $\idx$ is an indexing of $V$ with $\idx^{-1}(k_1) = \dots = \idx^{-1}(k_m) = \emptyset$ and $k_1,\dots,k_m$ are pairwise different, then moving $v$ to $k_1,\dots,k_m$ yields that while $\move(\idx,v,k_1),\dots,\move(\idx,v,k_m)$ are all different indexings, their induced partitions are the same: $\Pi(\move(\idx,v,k_1)) = \dots = \Pi(\move(\idx,v,k_m))$.
-\\ 
-Based on this observation we are interested in an efficient way of enumerating all possible ``moves'' of a vertex with respect to the induced partitions without enumerating too much or having to double-check whether two move-operations induce the same partition. Hence, consider algorithm \ref{alg:1}, which aims at finding a solution to this problem.
+
+\subsection{Move-Enumeration}
+
+In many cases, there are multiple ways of moving one vertex to different indices while still inducing the same partition afterwards. For example, if $v$ is an arbitrary vertex, $\idx$ is an indexing of $V$ with pairwise different $k_1,k_2$ such that there is no vertex $u$ with $\idx(u) = k_1$ or $\idx(u) = k_2$, then moving $v$ to $k_1$ or $k_2$ yields that while $\move{\idx}{v}{k_2}$ and $\move{\idx}{v}{k_2}$ are different indexings, their induced partitions are the same: $\Pi(\move{\idx}{v}{k_1}) = \Pi(\move{\idx}{v}{k_2})$. Based on this observation we are interested in an efficient way of enumerating all possible ``moves'' of a vertex with respect to the induced partitions without enumerating too much or having to double-check whether two move-operations induce the same partition. Hence, consider algorithm \ref{alg:moveenum}, which aims at finding a solution to this problem.
 
 \begin{algorithm}[H]
     \SetAlgoLined
+    \DontPrintSemicolon
     \KwIn{Set of vertices $V$ with indexing $\idx$}
-    \KwResult{Sequence of indexings $\idx_1,\idx_2,\dots,\idx_m$ }
-    Let $<$ be some linear order on $V$ \;
-    Let $\mathcal{N} := \{1,\dots,n\}\backslash \image(\idx)$ \;
-    \ForAll{vertices $w \in V$}{
-        \ForAll{$\idx(v) \in \image(\idx) \backslash \{ \idx(w) \}$}{
-            \uIf{$[w]_\idx = \{ w, u, \dots \}$ or $[v]_\idx  = \{ v, s, \dots \}$}{
-                enumerate $\move(\idx,w,\idx(v))$ \;
-            }\uElseIf{$[w]_\idx = \{ w \}$ and $[v]_\idx = \{ v \}$ and $w < v$}{
-                enumerate $\move(\idx,w,\idx(v))$ \;
+    \KwResult{Sequence of moves $(w_1,k_1),\dots,(w_m,k_m)$ }
+    Let $<$ be some linear order on $V$ \label{alg:moveenum:l1} \;
+    Let $\mathcal{N} := \{1,\dots,n\}\backslash \image(\idx)$  \label{alg:moveenum:l2} \;
+    \ForAll{vertices $w \in V$}{  \label{alg:moveenum:l3}
+        \ForAll{$\idx(v) \in \image(\idx) \backslash \{ \idx(w) \}$}{  \label{alg:moveenum:l4}
+            \uIf{$[w]_\idx = \{ w, u, \dots \}$ or $[v]_\idx  = \{ v, s, \dots \}$}{  \label{alg:moveenum:l5}
+                enumerate $(w, \idx(v))$  \label{alg:moveenum:l6} \;
+            }\uElseIf{$[w]_\idx = \{ w \}$ and $[v]_\idx = \{ v \}$ and $w < v$}{ \label{alg:moveenum:l7}
+                enumerate $(w, \idx(v))$  \label{alg:moveenum:l8} \;
             }
         }
-        \uIf{$[w]_\idx = \{ w, u, v, \dots \}$ or $([w]_\idx = \{w,u\}$ and $w < u)$}{
-            Let $k \in \mathcal{N}$ \;
-            enumerate $\move(\idx,w,k)$ \;
+        \uIf{$[w]_\idx = \{ w, u, v, \dots \}$ or $([w]_\idx = \{w,u\}$ and $w < u)$}{  \label{alg:moveenum:l9}
+            Let $k \in \mathcal{N}$  \label{alg:moveenum:l10} \;
+            enumerate $(w, k)$  \label{alg:moveenum:l11} \;
         }
     }
-    \caption{Move-Enumeration} \label{alg:1}
+    \caption{Move-Enumeration} \label{alg:moveenum}
 \end{algorithm}
 
-We want to check three important properties: one, algorithm \ref{alg:1} only enumerates indexings which yield partitions distinct from all induced partitions of the other indexings (the ``not too much''-part, see Lemma \ref{lemma:pairwise_distinctiveness}), two, every partition that is induced when moving one vertex in $\idx$ to a different set is induced by some indexing in $\idx_1,\dots,\idx_m$ (Lemma \ref{lemma:completeness}) and three, the partition that is induced by $\move(\idx,v,k)$ for any vertex $v$ and number $k$ is not the same that is induced by $\idx$ (Lemma \ref{lemma:self_neighbour}).
-
-%A corollary of these properties would be that there is a bijection between the sets $ \{\idx_1,\dots,\idx_m\}$ and $\{ \Pi(\move(\idx,v,k)) : v \in V, k \in \{1,\dots,n\} \}\backslash \{ \Pi(\idx) \}$.
+In the intuition is as follows. Line \ref{alg:moveenum:l1} fixes a linear order on $V$, which can be understood as a preference relation when the movement of two different vertices would yield the same partition. Line \ref{alg:moveenum:l2} defines $\mathcal{N}$ as the container for all indices that have no assigned vertices. What follows is the consideration of all possible moves of a vertex $v$ to some other index $k$ (line \ref{alg:moveenum:l3}, \ref{alg:moveenum:l4}, \ref{alg:moveenum:l9}): in line \ref{alg:moveenum:l4}, vertices are possibly moved to indices that are not empty, and in line \ref{alg:moveenum:l9}, vertices are possibly moved to empty indices\footnote{Mind that if $\mathcal{N} = \emptyset$, then there is no way line \ref{alg:moveenum:l9} will evaluate to true: since every index has some vertex that is assigned to it, and the amount of vertices is equal to the amount of indices, every vertex is ``alone'' at its index.}.\\
+We want to check three important properties: one, algorithm \ref{alg:moveenum} only enumerates moves which yield pairwise distinct partitions (the ``not too much''-part), two, every possible move is equivalent to one of the enumerated moves and three, the induced partition by any enumerated move is not the same as the partition induced by $\idx$. I.e., if $\idx$ is an indexing of $V$ and $(w_1,k_1),\dots,(w_m,k_m)$ is a sequence generated by algorithm \ref{alg:moveenum} on input $V$ and $\idx$, Lemma \ref{lemma:pairwise_distinctiveness}, \ref{lemma:completeness} and \ref{lemma:self_neighbour} hold.
 
 \begin{lemmarep}[Pairwise Distinctiveness]
-    Let $\idx$ be an indexing of $V$ and $\idx_1,\dots,\idx_m$ be a sequence generated by algorithm \ref{alg:1} on input $V$ and $\idx$. Then for all pairwise distinct $i,j \in \{1,\dots,m\}$, we have $\Pi(\idx_i) \neq \Pi(\idx_j)$. \label{lemma:pairwise_distinctiveness}
+    $\Pi(\move{\idx}{w_i}{k_i}) \neq \Pi(\move{\idx}{w_j}{k_j})$ for all $1 \leq i < j \leq m$. \label{lemma:pairwise_distinctiveness}
 \end{lemmarep}
-\begin{appendixproof}
-    First note that $\idx_1,\dots,\idx_m$ are indeed results of a move-operation on $\idx$. This can be checked by simple introspection on algorithm \ref{alg:1}. Therefore, we can write $\idx_i = \move(\idx,w_i,k_i)$ for all $i=1,\dots,m$, with $w_i \in V$ and $k_i \in \{1,\dots,n\}$, i.e.: $\idx_i$ moves vertex $w_i$ to index $k_i$. \\
-    % By Lemma \ref{lemma:equal_indexings}, we conclude that there must be a bijection $\lambda : \image(\idx_i) \rightarrow \image(\idx_j)$ such that for all vertices $v$, $\lambda(\idx_i(v)) = \idx_j(v)$.
-    Secondly, note that every pair $(w,k) \in V \times \{1,\dots,n\}$ is regarded at most once. This means that for every two different indexings $\idx_i,\idx_j$, either $w_i \neq w_j$ or $k_i \neq k_j$ holds. Now, pick $i,j \in \{1,\dots,m\}$ such that $i \neq j$. The rest of the proof can be done via case distinction on all possible conditions under which a move-operation could be executed in the algorithm:
+\begin{\appendixproof}
+    Note that every pair $(w,k) \in V \times \{1,\dots,n\}$ is regarded at most once. This means that for every two different indexings $\move{\idx}{w_i}{k_i},\move{\idx}{w_j}{k_j}$, either $w_i \neq w_j$ or $k_i \neq k_j$ holds. Now, pick $i,j \in \{1,\dots,m\}$ such that $i \neq j$. The rest of the proof can be done via case distinction on all possible conditions under which a move could be enumerated in the algorithm:
     \begin{enumerate}
-        \item $w_i = w_j = w$. Since $i$ and $j$ are pairwise distinct, $k_i \neq k_j$ must hold. For $k_i$, we have either $k_i \in \mathcal{N}$ (line 10) or $k_i = \idx(v) \in \image(\idx)\backslash \{ \idx(w) \}$ (line 6 and 8):
+        \item $w_i = w_j = w$. Since $i$ and $j$ are pairwise distinct, $k_i \neq k_j$ must hold. For $k_i$, we have either $k_i \in \mathcal{N}$ (line \ref{alg:moveenum:l9}) or $k_i = \idx(v) \in \image(\idx)\backslash \{ \idx(w) \}$ (line \ref{alg:moveenum:l6} and \ref{alg:moveenum:l8}):
         \begin{enumerate}
-            \item If $k_i \in \mathcal{N}$: Then $\idx_i(w) = k_i$ only for $w$ (since there is no vertex that is mapped to $k_i$ in $\idx$). Also $k_j \not\in \mathcal{N}$, since there is at maximum one $k \in \mathcal{N}$ for which $\move(\idx,w,k)$ is enumerated. Thus, $k_j = \idx(v) \in \image(\idx)\backslash \{ \idx(w) \}$. But then we have $\idx_j(w) = k_j =\idx_j(v)$ and $\idx_i(v) = k_j \neq k_i = \idx_i(w)$, which implies $\Pi(\idx_i) \neq \Pi(\idx_j)$ by Theorem \ref{theorem:equal_indexings}.
-            \item If $k_i = \idx(v) \in \image(\idx)\backslash \{\idx(w) \}$: After moving $w$ to $k_i$ in $\idx_i$, one obtains $\idx_i(w) = \idx_i(v) = k_i$, and after moving $w$ to $k_j$ in $\idx_j$, one gets $\idx_j(w) = k_j \neq k_i = \idx_j(v)$. But that implies $\Pi(\idx_i) \neq \Pi(\idx_j)$ by Theorem \ref{theorem:equal_indexings}.  
+            \item If $k_i \in \mathcal{N}$: Then $\move{\idx}{w_i}{k_i}(w) = k_i$ only for $w$ (since there is no vertex that is mapped to $k_i$ in $\idx$). Also $k_j \not\in \mathcal{N}$, since there is at maximum one $k \in \mathcal{N}$ for which $\move{\idx}{w}{k}$ is enumerated. Thus, $k_j = \idx(v) \in \image(\idx)\backslash \{ \idx(w) \}$. But then we have $\move{\idx}{w_j}{k_j}(w) = k_j =\move{\idx}{w_j}{k_j}(v)$ and $\move{\idx}{w_i}{k_i}(v) = k_j \neq k_i = \move{\idx}{w_i}{k_i}(w)$, which implies $\Pi(\move{\idx}{w_i}{k_i}) \neq \Pi(\move{\idx}{w_j}{k_j})$ by Theorem \ref{theorem:equal_indexings}.
+            \item If $k_i = \idx(v) \in \image(\idx)\backslash \{\idx(w) \}$: After moving $w$ to $k_i$ in $\move{\idx}{w_i}{k_i}$, one obtains $\move{\idx}{w_i}{k_i}(w) = \move{\idx}{w_i}{k_i}(v) = k_i$, and after moving $w$ to $k_j$ in $\move{\idx}{w_j}{k_j}$, one gets $\move{\idx}{w_j}{k_j}(w) = k_j \neq k_i = \move{\idx}{w_j}{k_j}(v)$. But that implies $\Pi(\move{\idx}{w_i}{k_i}) \neq \Pi(\move{\idx}{w_j}{k_j})$ by Theorem \ref{theorem:equal_indexings}.  
         \end{enumerate}
-        \item $w_i \neq w_j$, and therefore $\idx_i(w_j) = \idx(w_j)$ and $\idx_j(w_i) = \idx(w_i)$ (i.e., $\idx_i$ does not change the index of $w_j$ and $\idx_j$ does not change the index of $w_i$). Again, we make the distinction for the case $k_i \in \mathcal{N}$ and $k_i = \idx(v) \in \image(\idx)\backslash \{ \idx(w) \}$:
+        \item $w_i \neq w_j$, and therefore $\move{\idx}{w_i}{k_i}(w_j) = \idx(w_j)$ and $\move{\idx}{w_j}{k_j}(w_i) = \idx(w_i)$ (i.e., $\move{\idx}{w_i}{k_i}$ does not change the index of $w_j$ and $\move{\idx}{w_j}{k_j}$ does not change the index of $w_i$). Again, we make the distinction for the case $k_i \in \mathcal{N}$ and $k_i = \idx(v) \in \image(\idx)\backslash \{ \idx(w) \}$:
         \begin{enumerate}
             \item If $k_i \in \mathcal{N}$: since $k_i \not\in \image(\idx)$, $\idx(w_i) \neq k_i$. Also, at least one of the following cases (see line 9 of the algorithm) must hold:
             \begin{enumerate}
-                \item If $[w_i]_\idx = \{ w_i, u, v, \dots \}$: At least one of the vertices $u$ and $v$ must be different from $w_j$, since $u \neq v$ and $w_j$ cannot be equal to both of them. Let w.l.o.g. $u \neq w_j$. Then $\idx_j(w_i) = \idx(w_i) = \idx(u) = \idx_j(u)$ but $\idx_i(w_i) = k_i \neq \idx(w_i) = \idx_i(u)$, i.e. $\Pi(\idx_i) \neq \Pi(\idx_j)$ by Theorem \ref{theorem:equal_indexings}.
+                \item If $[w_i]_\idx = \{ w_i, u, v, \dots \}$: At least one of the vertices $u$ and $v$ must be different from $w_j$, since $u \neq v$ and $w_j$ cannot be equal to both of them. Let w.l.o.g. $u \neq w_j$. Then $\move{\idx}{w_j}{k_j}(w_i) = \idx(w_i) = \idx(u) = \move{\idx}{w_j}{k_j}(u)$ but $\move{\idx}{w_i}{k_i}(w_i) = k_i \neq \idx(w_i) = \move{\idx}{w_i}{k_i}(u)$, i.e. $\Pi(\move{\idx}{w_i}{k_i}) \neq \Pi(\move{\idx}{w_j}{k_j})$ by Theorem \ref{theorem:equal_indexings}.
                 \item If $[w_i]_\idx = \{w_i, u \}$ and $w_i < u$: 
                 \begin{enumerate}
-                    \item $w_j \neq u$: We get $\idx_i(w_i) \neq \idx_i(u)$ and $\idx_j(w_i) = \idx(w_i) = \idx(u) = \idx_j(u)$. Then simply apply Theorem \ref{theorem:equal_indexings} and obtain $\Pi(\idx_i) \neq \Pi(\idx_j)$.
-                    \item $w_j = u$. Since $u \not< w_i$ and $[w_j]_\idx = [w_i]_\idx$, there is no possibility that line 11 is executed for $w_j$. Therefore, $k_j \not\in \mathcal{N}$. But then $k_j= \idx(v) \in \image(\idx)\backslash \{ \idx(w_j) \}$ with $w_i \neq v \neq w_j$. Thus, $\idx_j(w_j) = \idx(v)=\idx_j(v)$ and $\idx_i(w_j) = \idx(w_j) \neq \idx(v) = \idx_i(v)$. Again, the application of Theorem \ref{theorem:equal_indexings} yields $\Pi(\idx_i) \neq \Pi(\idx_j)$.
+                    \item $w_j \neq u$: We get $\move{\idx}{w_i}{k_i}(w_i) \neq \move{\idx}{w_i}{k_i}(u)$ and $\move{\idx}{w_j}{k_j}(w_i) = \idx(w_i) = \idx(u) = \move{\idx}{w_j}{k_j}(u)$. Then simply apply Theorem \ref{theorem:equal_indexings} and obtain $\Pi(\move{\idx}{w_i}{k_i}) \neq \Pi(\move{\idx}{w_j}{k_j})$.
+                    \item $w_j = u$. Since $u \not< w_i$ and $[w_j]_\idx = [w_i]_\idx$, there is no possibility that line 11 is executed for $w_j$. Therefore, $k_j \not\in \mathcal{N}$. But then $k_j= \idx(v) \in \image(\idx)\backslash \{ \idx(w_j) \}$ with $w_i \neq v \neq w_j$. Thus, $\move{\idx}{w_j}{k_j}(w_j) = \idx(v)=\move{\idx}{w_j}{k_j}(v)$ and $\move{\idx}{w_i}{k_i}(w_j) = \idx(w_j) \neq \idx(v) = \move{\idx}{w_i}{k_i}(v)$. Again, the application of Theorem \ref{theorem:equal_indexings} yields $\Pi(\move{\idx}{w_i}{k_i}) \neq \Pi(\move{\idx}{w_j}{k_j})$.
                 \end{enumerate}
             \end{enumerate}
             \item If $k_i = \idx(v) \in \image(\idx)\backslash \{ \idx(w_i) \}$, then one of the following cases applies:
             \begin{enumerate}
                 \item $[w_i]_\idx = \{w_i,u,\dots\}$. 
                 \begin{enumerate}
-                    \item If $w_j = u$: then $\idx_j(w_i) = \idx(w_i) \neq \idx(v) = \idx_j(v)$ and $\idx_i(w_i) = \idx(v) = \idx_i(v)$. Here, Theorem \ref{theorem:equal_indexings} can be applied, which results in $\Pi(\idx_i) \neq \Pi(\idx_j)$.
-                    \item If $w_j \neq u$: then $\idx_j(w_i) = \idx(w_i) = \idx(u) = \idx_j(u)$ and $\idx_i(w_i) \neq \idx(w_i) = \idx(u) = \idx_i(u)$. Theorem \ref{theorem:equal_indexings} can be applied with result $\Pi(\idx_i) \neq \Pi(\idx_j)$.
+                    \item If $w_j = u$: then $\move{\idx}{w_j}{k_j}(w_i) = \idx(w_i) \neq \idx(v) = \move{\idx}{w_j}{k_j}(v)$ and $\move{\idx}{w_i}{k_i}(w_i) = \idx(v) = \move{\idx}{w_i}{k_i}(v)$. Here, Theorem \ref{theorem:equal_indexings} can be applied, which results in $\Pi(\move{\idx}{w_i}{k_i}) \neq \Pi(\move{\idx}{w_j}{k_j})$.
+                    \item If $w_j \neq u$: then $\move{\idx}{w_j}{k_j}(w_i) = \idx(w_i) = \idx(u) = \move{\idx}{w_j}{k_j}(u)$ and $\move{\idx}{w_i}{k_i}(w_i) \neq \idx(w_i) = \idx(u) = \move{\idx}{w_i}{k_i}(u)$. Theorem \ref{theorem:equal_indexings} can be applied with result $\Pi(\move{\idx}{w_i}{k_i}) \neq \Pi(\move{\idx}{w_j}{k_j})$.
                 \end{enumerate}
-                \item $[v]_{\idx} = \{v,s,\dots\}$.
-                \begin{enumerate}
-                    \item If $w_j = v$: then $\idx_i(w_i) = \idx_i(v)$ but $\idx_j(w_i) \neq \idx_j(v)$ . In this case, Theorem \ref{theorem:equal_indexings} can be applied to obtain $\Pi(\idx_i) \neq \Pi(\idx_j)$.
-                    \item If $w_j \neq v$: then $\idx_i(w_i) = \idx_i(v)$ but $\idx_j(w_i) \neq \idx_j(v)$. Application of Theorem \ref{theorem:equal_indexings} yields $\Pi(\idx_i) \neq \Pi(\idx_j)$.
-                \end{enumerate}
+                \item $[v]_{\idx} = \{v,s,\dots\}$. Let w.l.o.g. $w_j \neq s$ (otherwise, if $w_j = s$, then $w_j \neq v$ and a symmetric argument applies). Then $\move{\idx}{w_i}{k_i}(w_i) = \move{\idx}{w_i}{k_i}(s)$ but $\move{\idx}{w_j}{k_j}(w_i) = \idx(w_i) \neq  \idx(s) = \move{\idx}{w_j}{k_j}(s)$. In this case, Theorem \ref{theorem:equal_indexings} can be applied to obtain $\Pi(\move{\idx}{w_i}{k_i}) \neq \Pi(\move{\idx}{w_j}{k_j})$.
                 \item $[w_i]_\idx = \{ w_i \}$ and $[v]_\idx = \{ v \}$ and $w_i < v$.
                 \begin{enumerate}
-                    \item If $w_j = v$. Then neither line 6 (since $|[w_j]_\idx| = 1$) nor line 8 are executed for $w_j$ and $k = \idx(w_i)$ (since $w_j \not < w_i$). Thus, $k_j \neq \idx(w_i)$ must hold. But then $\idx_i(w_i) = k_i = \idx(v) = \idx(w_j) = \idx_i(w_j)$ and $\idx_j(w_i) = \idx(w_i) \neq k_j = \idx_j(w_j)$. Application of Theorem \ref{theorem:equal_indexings} yields $\Pi(\idx_i) \neq \Pi(\idx_j)$.
-                    \item If $w_j \neq v$. Then $\idx_i(w_i) = \idx(v) = \idx_i(v)$ but $\idx_j(w_i) = \idx(w_i) \neq \idx(v) = \idx_j(v)$. Again, application of Theorem \ref{theorem:equal_indexings} gives us $\Pi(\idx_i) \neq \Pi(\idx')$.
+                    \item If $w_j = v$. Then neither line \ref{alg:moveenum:l6} (since $|[w_j]_\idx| = 1$) nor line \ref{alg:moveenum:l8} are executed for $w_j$ and $k = \idx(w_i)$ (since $w_j \not < w_i$). Thus, $k_j \neq \idx(w_i)$ must hold. But then $\move{\idx}{w_i}{k_i}(w_i) = k_i = \idx(v) = \idx(w_j) = \move{\idx}{w_i}{k_i}(w_j)$ and $\move{\idx}{w_j}{k_j}(w_i) = \idx(w_i) \neq k_j = \move{\idx}{w_j}{k_j}(w_j)$. Application of Theorem \ref{theorem:equal_indexings} yields $\Pi(\move{\idx}{w_i}{k_i}) \neq \Pi(\move{\idx}{w_j}{k_j})$.
+                    \item If $w_j \neq v$. Then $\move{\idx}{w_i}{k_i}(w_i) = \idx(v) = \move{\idx}{w_i}{k_i}(v)$ but $\move{\idx}{w_j}{k_j}(w_i) = \idx(w_i) \neq \idx(v) = \move{\idx}{w_j}{k_j}(v)$. Again, application of Theorem \ref{theorem:equal_indexings} gives us $\Pi(\move{\idx}{w_i}{k_i}) \neq \Pi(\varidx)$.
                 \end{enumerate} 
             \end{enumerate}
         \end{enumerate}
     \end{enumerate}
-    This finishes the proof, since in all cases $\Pi(\idx_i) \neq \Pi(\idx_j)$ holds.
-\end{appendixproof}
+    This finishes the proof, since in all cases $\Pi(\move{\idx}{w_i}{k_i}) \neq \Pi(\move{\idx}{w_j}{k_j})$ holds.
+\end{\appendixproof}
 
 \begin{lemmarep}[Completeness]
-    Let $\idx$ be an indexing of $V$ and $\idx_1,\dots,\idx_m$ be the sequence that is generated by algorithm \ref{alg:1} on input $V$ and $\idx$. For all vertices $v$ and $k \in \{1,\dots,n\}$ such that $\Pi(\move(\idx,v,k)) \neq \Pi(\idx)$, there is $i\in \{1,\dots,m\}$ such that $\Pi(\move(\idx,v,k)) = \Pi(\idx_i)$.\label{lemma:completeness}
+    For all vertices $w$ and $k \in \{1,\dots,n\}$, there is $i\in \{1,\dots,m\}$ such that $\Pi(\move{\idx}{w}{k}) = \Pi(\move{\idx}{w_i}{k_i})$ if $\Pi(\move{\idx}{v}{k}) \neq \Pi(\idx)$.\label{lemma:completeness}
 \end{lemmarep}
-\begin{appendixproof}
-    Let $\idx$ be an indexing of $V$ and let $w$ be a vertex and $k\in\{1,\dots,n\}$. We want to show that if $\Pi(\move(\idx,w,k)) \neq \Pi(\idx)$, then there is an $i\in \{1,\dots,m\}$ such that $\Pi(\move(\idx,w,k)) = \Pi(\idx_i)$. First, note that $\idx(w)\neq k$ holds, since otherwise this would imply $\Pi(\move(\idx,w,k)) = \Pi(\idx)$. The remainder of this proof works with multiple case distinctions:
+\begin{\appendixproof}
+    Let $\idx$ be an indexing of $V$, let $w$ be a vertex and $k\in\{1,\dots,n\}$. We want to show that if $\Pi(\move{\idx}{w}{k}) \neq \Pi(\idx)$, then there is an $i\in \{1,\dots,m\}$ such that $\Pi(\move{\idx}{w}{k}) = \Pi(\move{\idx}{w_i}{k_i})$. First, note that $\idx(w)\neq k$ holds, since otherwise this would imply $\Pi(\move{\idx}{w}{k}) = \Pi(\idx)$. The remainder of this proof works with multiple case distinctions:
     \begin{enumerate}
-        \item If $[w]_\idx = \{ w \}$. This directly implies $k = \idx(v)$ for a $v \in V$, since otherwise that would mean $\Pi(\move(\idx,w,k)) = \Pi(\idx)$. Thus, for $[v]_\idx$ there are the following options:
+        \item If $[w]_\idx = \{ w \}$. This directly implies $k = \idx(v)$ for a $v \in V$, since otherwise that would mean $\Pi(\move{\idx}{w}{k}) = \Pi(\idx)$. Thus, for $[v]_\idx$ there are the following options:
         \begin{enumerate}
-            \item If $[v]_\idx = \{ v \}$. In the case $w < v$, line 8 enumerates $\move(\idx,w,k)$ directly.  Otherwise, if $v < w$, line 8 enumerates $\move(\idx,v,\idx(w))$, where $\Pi(\move(\idx,v,\idx(w)) = \Pi(\move(\idx,w,k))$. 
-            \item If $[v]_\idx = \{ v,s,\dots \}$. Line 6 in the algorithm directly enumerates $\move(\idx,w,k)$.
+            \item If $[v]_\idx = \{ v \}$. In the case $w < v$, line \ref{alg:moveenum:l8} enumerates $\move{\idx}{w}{k}$ directly.  Otherwise, if $v < w$, line \ref{alg:moveenum:l8} enumerates $\move{\idx}{v}{\idx(w)}$, where $\Pi(\move{\idx}{v}{\idx(w)}) = \Pi(\move{\idx}{w}{k})$. 
+            \item If $[v]_\idx = \{ v,s,\dots \}$. Line \ref{alg:moveenum:l6} in the algorithm directly enumerates $\move{\idx}{w}{k}$.
         \end{enumerate} 
         \item If $[w]_\idx = \{ w,u, \dots \}$. Since $\idx$ maps $w$ and $u$ to the same index, there is at least one index in $1,\dots,n$ that is assigned no vertex. But then $\mathcal{N} \neq \emptyset$. Again, there are the following options:
         \begin{enumerate}
             \item There is no $v \in V$ such that $k = \idx(v)$: 
             \begin{enumerate}
-                \item If $[w]_\idx = \{ w,v,u,\dots \}$, then line 11 is executed and there is some $\ell \in \mathcal{N}$ for which $\move(\idx,w,\ell)$ is enumerated. But then $\Pi(\move(\idx,w,k))=\Pi(\move(\idx,w,\ell))$.
+                \item If $[w]_\idx = \{ w,v,u,\dots \}$, then line \ref{alg:moveenum:l11} is executed and there is some $\ell \in \mathcal{N}$ for which $\move{\idx}{w}{\ell}$ is enumerated. But then $\Pi(\move{\idx}{w}{k})=\Pi(\move{\idx}{w}{\ell})$.
                 \item If $[w]_\idx = \{w,u\}$. 
                 \begin{enumerate}
-                    \item If $w < u$, then line 11 enumerates $\move(\idx,w,\ell)$ for $w$ and some $\ell \in \mathcal{N}$. But then $\Pi(\move(\idx,w,\ell)) = \Pi(\move(\idx,w,k))$.
-                    \item If $u < w$, then line 11 enumerates $\move(\idx,u,\ell)$ for $u$ and some $\ell \in \mathcal{N}$. But then again, $\Pi(\move(\idx,u,\ell)) = \Pi(\move(\idx,w,k))$.
+                    \item If $w < u$, then line \ref{alg:moveenum:l11} enumerates $\move{\idx}{w}{\ell}$ for $w$ and some $\ell \in \mathcal{N}$. But then $\Pi(\move{\idx}{w}{\ell}) = \Pi(\move{\idx}{w}{k})$.
+                    \item If $u < w$, then line \ref{alg:moveenum:l11} enumerates $\move{\idx}{u}{\ell}$ for $u$ and some $\ell \in \mathcal{N}$. But then again, $\Pi(\move{\idx}{u}{\ell}) = \Pi(\move{\idx}{w}{k})$.
                 \end{enumerate} 
             \end{enumerate}
-            \item There is $v \in V$ such that $k = \idx(v)$. Then $k \in \image(\idx)\backslash \{ \idx(w) \}$ and line 6 is executed. This enumerates $\move(\idx,w,k)$.
+            \item There is $v \in V$ such that $k = \idx(v)$. Then $k \in \image(\idx)\backslash \{ \idx(w) \}$ and line 6 is executed. This enumerates $\move{\idx}{w}{k}$.
         \end{enumerate}
     \end{enumerate}
-    This shows that in all cases, there is some $\idx_i$ that is enumerated which yields the same partition as $\move(\idx,v,k)$.
-\end{appendixproof}
+    This shows that in all cases, there is some $\move{\idx}{w_i}{k_i}$ that is enumerated which yields the same partition as $\move{\idx}{v}{k}$.
+\end{\appendixproof}
 
-\begin{lemmarep}
-    Let $\idx$ be an indexing of $V$ and $\idx_1,\dots,\idx_m$ be the sequence that is generated by algorithm \ref{alg:1} on input $V$ and $\idx$. Then $\Pi(\idx) \neq \Pi(\idx_i)$ for all $i\in \{1,\dots,m\}$. \label{lemma:self_neighbour}
-\end{lemmarep}
-\begin{appendixproof}
-    $\Pi(\move(\idx,v,k)) = \Pi(\idx)$ if and only if either $k=\idx(v)$ or if $[v]_\idx = \{v\}$, then $k \in \mathcal{N}$. Simple case distinction yields that both cases never happen for any $\idx_i$, $i\in \{1,\dots,m\}$.
-\end{appendixproof}
-
-\begin{corollary}
-    For an indexing $\psi$ of $V$, the following statements are equivalent:
-    \begin{itemize}
-        \item $\psi = \move(\idx,v,k)$ and $\Pi(\psi)\neq \Pi(\idx)$ for $v \in V, 1\leq k \leq n$
-        \item $\Pi(\psi) \in \{\Pi(\idx_1),\dots,\Pi(\idx_m)\}$.
-    \end{itemize}
-\end{corollary}
+\begin{lemma}[No self-neighbour]
+    $\Pi(\idx) \neq \Pi(\move{\idx}{w_i}{k_i})$ for all $i\in \{1,\dots,m\}$. \label{lemma:self_neighbour}
+\end{lemma}
 \begin{proof}
-    From top to bottom, simply apply Lemma \ref{lemma:completeness}. For the direction from bottom to top, apply Lemma \ref{lemma:self_neighbour}.
+    $\Pi(\move{\idx}{v}{k}) = \Pi(\idx)$ if and only if either $k=\idx(v)$ or if $[v]_\idx = \{v\}$ and $k \in \mathcal{N}$. Case distinction yields that both cases never happen for any $\move{\idx}{w_i}{k_i}$, $i\in \{1,\dots,m\}$.
 \end{proof}
+
+\section{Confronting the Objective Function}
+Since we are only interested in some minimizer $\Pi^*$ of the original problem, it does not matter which function we minimize, as long as the set of minimizers stays the same. Therefore, we can apply any strongly monotonic growing function to the objective, and, for example, multiply by some positive constant. We are then able to obtain
+\begin{align}
+    \Pi^* &= \argmin_{\Pi \in P_V} \sum\nolimits_{T\in\binom{V}{3}} \ell(T,\Pi) \label{eq:311} \\
+    &= \argmin_{\Pi \in P_V} \frac{1}{|\binom{V}{3}|} \sum\nolimits_{T\in\binom{V}{3}} \ell(T,\Pi) \label{eq:312} \\
+    &= \argmin_{\Pi \in P_V} \E_{{\bf T} \sim \Uc\left(\binom{V}{3}\right)} \left[\ell({\bf T}, \Pi)\right] \label{eq:313}
+\end{align}
+where $\Uc$ is the uniform distribution. Equality \eqref{eq:311} is just the definition of $\Pi^*$, \eqref{eq:312} is the same function multiplied by a positive value and the last equality \eqref{eq:313} is just the definition of the expected value. This perspective allows to approximate the objective value to any degree by uniformly sampling a fixed number of $3$-ary subsets from $V$ and computing the sample mean.
+
+\subsection{Computing Value Improvements}
+In many cases, one wants to compute the change in the objective function when considering two different partitions $\Pi,\Gamma \in P_V$. The difference is then given by
+\begin{align*}
+    \E_{{\bf T} \sim \Uc\left(\binom{V}{3}\right)} \left[\ell({\bf T}, \Pi)\right] - \E_{{\bf T} \sim \Uc\left(\binom{V}{3}\right)} \left[\ell({\bf T}, \Gamma)\right] &= \E_{{\bf T} \sim \Uc\left(\binom{V}{3}\right)} \left[\ell({\bf T}, \Pi) - \ell({\bf T}, \Gamma)\right] \\
+    &= \E_{{\bf T} \sim \Uc\left(\binom{V}{3}\right)} \left[\delta({\bf T}, \Pi, \Gamma)\right]
+\end{align*}
+which can possibly be simplified, dependent on the shape of $\Gamma$ with respect to $\Pi$ and vice versa. For example, if we consider an indexing $\idx$ of $V$ with $\Pi = \Pi(\idx)$ and $\Gamma = \Pi(\move{\idx}{v}{k})$, i.e. $\Gamma$ is the result of a move-operation on $\Pi$, then the above can be simplified to
+\begin{align*}
+    \E_{{\bf \{u,w\}} \sim \Uc\left(\binom{V\backslash\{v\}}{2}\right)} \left[\delta(\{{\bf u},v,{\bf w} \}, \Pi, \Gamma)\right] = J(\Pi, \Gamma),
+\end{align*}
+since $\ell(T,\Pi) = \ell(T,\Gamma)$ for all $T \in \binom{V \backslash \{ v\} }{3}$. This can be shown as follows. Take $u,w \in V\backslash\{v\}$. Then 
+\begin{align}
+    [u]_{\Pi(\idx)} = [w]_{\Pi(\idx)} &\iff \idx(u) = \idx(w)  \label{eq:321} \\
+    &\iff \move{\idx}{v}{k}(u) = \move{\idx}{v}{k}(w)  \label{eq:322} \\
+    &\iff [u]_{\Pi(\move{\idx}{v}{k})} = [w]_{\Pi(\move{\idx}{v}{k})}  \label{eq:323}
+\end{align}
+Equivalences \eqref{eq:321} and \eqref{eq:323} follow from Lemma \ref{lemma:indexing_same_set}, and \eqref{eq:322} holds since $u \neq v \neq w$. Therefore, if $T$ is a 3-ary subset of $V$ that does not contain $v$, it can be seen that the conditions that make $\ell(T,\Pi(\idx))$ or $\ell(T,\Pi(\move{\idx}{v}{k}))$ take certain values are exactly the same, which implies equality. Overall, this allows for a computation time bounded by $n^2$ if the expected value is computed explicitly. 
+
+
+\section{Algorithms}
+
+We are now ready to present a local search algorithm that greedily improves a given partition (algorithm \ref{alg:greedy1}). This algorithm takes as input a set of vertices, an indexing that is used as the initial value and a stopping criteria that depends on the number of iterations and the current indexing. In every iteration, it generates the neighbourhood of the current indexing through application of algorithm \ref{alg:moveenum} (line \ref{alg:greedy1:l1}). Afterwards, in line \ref{alg:greedy1:l2}, the neighbour with the best improvement is selected. If there is no neighbour that yields any better value (i.e. the difference computed in line \ref{alg:greedy1:l2} is negative or zero), a local minima was found and the current indexing is returned (line \ref{alg:greedy1:l3}). Otherwise, the algorithm just continues (line \ref{alg:greedy1:l4}). \\
+Considering an indexing $\idx$, one can see that the amount of possible neighbours is bounded by $O(|V| \cdot |\Pi(\idx) |)$ -- this becomes clear by introspection of algorithm \ref{alg:moveenum}, since for every vertex, there are at maximum $|\image(\idx)| = |\Pi(\idx)|$ candidates for $k$. Fully computing the improvement of a neighbour in line \ref{alg:greedy1:l2} is closely bounded by $O(|V|^2)$ steps, since one has to compute almost all possible 2-ary combinations of vertices. Combining this with the size of the neighbourhood, one obtains an overall upper bound of $O(|V|^3 \cdot |\Pi(\idx)|)$ required steps for computing the best neighbour. The remainder, i.e. line \ref{alg:greedy1:l3} and \ref{alg:greedy1:l4}, can be computed in constant time if one does not recompute the improvement of $\move{\idx}{v^*}{k^*}$ over $\idx$ or copies the whole indexing. Since the amount of sets in a partition is bounded by $|V|$, we obtain an upper bound of $O(|V|^4)$ steps per iteration. However, if we assume that the maximal number of iterations is bounded by a constant, this complexity propagates to the complete algorithm\footnote{Although it would make sense to choose the stopping criteria dependent on the number of vertices, since in each iteration, there is only one vertex that is moved, and the overall number of vertices might be too high to reach an optimal solution in time.}.
+
+\begin{algorithm}[H]
+    \SetAlgoLined
+    \DontPrintSemicolon
+    \KwIn{Set of vertices $V$ with indexing $\idx$ and stopping criteria $\mathrm{stop} : \N \times [n]^V \rightarrow \{0,1\}$. }
+    \KwResult{Better indexing $\varidx$ }
+    Let $i := 1$ \;
+    \While{not $\mathrm{stop}(i, \idx)$}{
+        Let $(v_1, k_1),\dots,(v_m, k_m)$ be the output generated by Algorithm \ref{alg:moveenum} on input $V$ and $\idx$ \label{alg:greedy1:l1} \;
+        Compute $(v^*,k^*) := \argmax_{(v_i,k_i)} J( \Pi(\idx), \Pi(\move{\idx}{v_i}{k_i}) )$ \label{alg:greedy1:l2} \;
+        \If{$J( \Pi(\idx), \Pi(\move{\idx}{v^*}{k^*}) ) \leq 0$}{
+            \Return{$\idx$} \label{alg:greedy1:l3} \;
+        }
+        Set $\idx := \move{\idx}{v^*}{k^*}$ and $i := i+1$ \label{alg:greedy1:l4} \;
+    }
+    \Return{$\idx$}
+    \caption{Greedy-Search} \label{alg:greedy1}
+\end{algorithm}
+
+A second variant of the greedy search algorithm makes use of sampling. Algorithm \ref{alg:greedy2} does not consider the complete neighbourhood of any indexing, but rather randomly selects a given number of $N$ neighbours (line \ref{alg:greedy2:l3} and \ref{alg:greedy2:l4}). For each of these neighbours, a fixed number of $M$ random vertices is selected (line \ref{alg:greedy2:l5}), which are used to compute the sample mean in line \ref{alg:greedy2:l6}. The only real difference to algorithm \ref{alg:greedy1} is that instead of returning the current indexing if no neighbour yields an improvement, algorithm \ref{alg:greedy2} just continues (line \ref{alg:greedy2:l7} and \ref{alg:greedy2:l8}). This is because of the variance that is induced when sampling vertices or neighbours, i.e.: the selected ``best'' neighbour (line \ref{alg:greedy2:l6}) might not actually be worse than the current solution or the actual best neighbour was not sampled from the neighbourhood (line \ref{alg:greedy2:l3}).
+
+\begin{algorithm}[H]
+    \SetAlgoLined
+    \DontPrintSemicolon
+    \KwIn{Set of vertices $V$ with indexing $\idx$, stopping criteria $\mathrm{stop} : \N \times [n]^V \rightarrow \{0,1\}$, neighbourhood sample size $\mathrm{N}$, objective sample size $\mathrm{M}$}
+    \KwResult{Better indexing $\varidx$ }
+    Let $i := 1$ \label{alg:greedy2:l1} \;
+    \While{not $\mathrm{stop}(i, \idx)$}{  \label{alg:greedy2:l2} 
+        Let $(v_1, k_1),\dots,(v_m, k_m)$ be the output generated by Algorithm \ref{alg:moveenum} on input $V$ and $\idx$  \label{alg:greedy2:l3}  \;
+        Sample $(x_1, l_1),\dots,( x_N, l_N)$ from $(v_1,k_1),\dots,(v_m,k_m)$  \label{alg:greedy2:l4}  \;
+        Sample $\{u_{i,1},w_{i,1} \}, \dots,\{u_{i,M},w_{i,M}\}$ from $\binom{V\backslash\{ x_i \}}{2}$ for all $i\in \{ 1,\dots, N \}$  \label{alg:greedy2:l5}  \;
+        Compute $(x^*, l^*) := \argmax_{(x_i, l_i)} \frac{1}{M} \sum_{j=1}^M \delta(\{u_{i,j}, w_{i,j}, x_i\}, \Pi(\idx_i), \Pi(\move{\idx}{x_i}{l_i}))$  \label{alg:greedy2:l6}  \;
+        \If{$\move{\idx}{x^*}{l^*}$ is an improvement over $\idx$}{ \label{alg:greedy2:l7}
+            Set $\idx := \move{\idx}{x^*}{l^*}$ \label{alg:greedy2:l8} \;
+        }
+        Set $i := i+1$  \label{alg:greedy2:l9} \;
+    }
+    \Return{$\idx$}  \label{alg:greedy2:l10} 
+    \caption{Greedy-Search with Sampling} \label{alg:greedy2}
+\end{algorithm}
+
+\section{Choosing the Stopping Criteria}
+Shortest path to an optimal solution. This should yield a lower bound for the minimal amount of iterations.
+
+\begin{lemma}
+    Let $\idx$ and $\varidx$ be two indexings of $V$. Then there is a  
+\end{lemma}

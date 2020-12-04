@@ -2,12 +2,13 @@
 \usepackage[utf8]{inputenc}
 \usepackage{tikz}
 \usetikzlibrary{decorations.pathreplacing}
+\usepackage{microtype}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{xargs}
 \usepackage[parfill]{parskip}
-\usepackage[margin=1.2in]{geometry}
+\usepackage[margin=1.3in]{geometry}
 \usepackage{tabularx}
 \usepackage{float}
 \usepackage{amsthm}
@@ -21,13 +22,14 @@
 %\setmainfont{Asana-Math}
 %\usepackage[adobe-utopia]{mathdesign}
 \usepackage{libertinus}
+\usepackage{fdsymbol}
 \usepackage[T1]{fontenc}
 
-\usepackage{apxproof}
 
 \usepackage[ruled,vlined,linesnumbered,noend]{algorithm2e}
+\usepackage{setspace}
 
-\def\arraystretch{1.2}
+%\def\arraystretch{1.2}
 
 \newcommand{\Qc}{\mathcal{Q}}
 \newcommand{\Sc}{\mathcal{S}}
@@ -68,16 +70,29 @@
 
 \newcommand{\idx}{\varphi}
 \newcommand{\varidx}{\psi}
-\newcommand{\move}{\mathrm{move}}
+\newcommand{\move}[3]{#1_{#2\rightarrow #3}}
 \newcommand{\image}{\mathrm{image}}
 \newcommand{\minimize}{\text{minimize}}
+\renewcommand{\iff}{\quad\text{iff}\quad}
 
-\newtheoremrep{theorem}{Theorem}[section]
-\newtheoremrep{corollary}{Corollary}[theorem]
-\newtheoremrep{lemma}[theorem]{Lemma}
+% \newtheoremrep{theorem}{Theorem}[section]
+% \newtheoremrep{corollary}{Corollary}[theorem]
+% \newtheoremrep{lemma}[theorem]{Lemma}
 \newtheorem{definition}{Definition}[section]
 
+% \usepackage{apxproof}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{theoremrep}{Theorem}[section]
+\newtheorem{corollaryrep}{Corollary}[theorem]
+\newtheorem{lemmarep}[theorem]{Lemma}
+\newcommand{\appendixproof}{proof}
+
 \begin{document}
+
+\tableofcontents
+\newpage
 
 % Problem with multicuts: they require a lot of store, since they are bounded by |V|^2.
 % Thus, focus on partition-perspective on problem.
