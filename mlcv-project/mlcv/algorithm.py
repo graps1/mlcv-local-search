@@ -1,6 +1,7 @@
 import numpy as np
-from collections import defaultdict
 from time import time
+import itertools
+import random
 
 def sample_noreplace(arr, n, k):
     """samples n k-ary subsets from a given iterable (with length property)
@@ -156,100 +157,165 @@ def compute_index_counts(indexing):
     return counts
 
 
-def compute_probability_weights(candidate_vertices, indexing, counts, image, ridx):
-    countsgeq2 = len([c for c in counts if c >= 2])
-    others = np.zeros_like(indexing)
-    accsum = 0
-    for vertex in candidate_vertices:
-        index = indexing[vertex]
-        if counts[index] == 1:
-            others[vertex] = accsum
-            accsum += 1
-    others = np.max(others) - others
-
-    weights = np.zeros(len(candidate_vertices))
-    for i, vertex in enumerate(candidate_vertices):
-        index = indexing[vertex]
-        if counts[index] >= 3:
-            weights[i] = len(image)
-        elif counts[index] >= 2:
-            U_v = ridx[index]
-            offset = 1 if vertex==U_v[0] else 0
-            weights[i] = len(image) - 1 + offset
-        elif counts[index] == 1:
-            weights[i] = countsgeq2 + others[vertex]
-    return weights/np.sum(weights)
-
-def neighbours(indexing, taboo=None, random_stream=True):
-    """enumerates the neighbours of an indexing. the neighbourhood is defined
-    by the set of possible moves of vertices to other indices.
+def compute_probability_weights(indexing, 
+                                counts, 
+                                image, 
+                                binary_set_mappings):
+    """computes an array that contains the probability for each vertex 
+    of being subject of a move-operation w.r.t. the given indexing
 
     :param indexing: the indexing
     :type indexing: np.array[n,dtype=int]
-    :param randomize: whether the neighbours should be returned in 
-        randomized order, defaults to True
-    :type randomize: bool, optional
-    :yield: iterator over all neighbours, where a neighbour is encoded as a vertex/index-pair
-    :rtype: iterator[Tuple[int,int]]
+    :param counts: array containing number of vertices/index
+    :type counts: np.array[n,dtype=int]
+    :param image: list containing non-empty indices
+    :type image: list
+    :param binary_set_mappings: result of `compute_binary_set_mappings`
+    :type binary_set_mappings: np.array[n,dtype=int]
+    :return: the probabilities for each vertex
+    :rtype: np.array[n,dtype=float]
     """    
-    # compute the number of vertices per index
-    counts = compute_index_counts(indexing)
-    # compute ridx := idx^-1 only when it's relevant: i.e. for sets
-    # with size 2 or 1. the remainder can be done via counts
-    ridx = defaultdict(list)
-    for vertex, index in enumerate(indexing):
-        if counts[index] == 1 or counts[index] == 2:
-            # the lower vertex will always be on index 0, the greater on 1
-            ridx[index].append(vertex)
-    # find, if possible, an empty index
-    empty = None
+    S_w_cardinalities = np.zeros_like(indexing)
+
+    countsgeq2 = sum(c>=2 for c in counts) # compute amount of indices that have count>=2
+    countseq1 = [v for v in range(indexing.shape[0]) if counts[indexing[v]]==1]
+    K_cardinalities = np.zeros_like(indexing)
+    for card,w in enumerate(countseq1[::-1]):
+        K_cardinalities[w] = card
+
+    for w,index in enumerate(indexing):
+        if counts[index] >= 3:
+            S_w_cardinalities[w] = len(image)
+        elif counts[index] == 2:
+            offset = 1 if w==binary_set_mappings[index] else 0
+            S_w_cardinalities[w] = len(image) - 1 + offset
+        elif counts[index] == 1:
+            S_w_cardinalities[w] = countsgeq2 + K_cardinalities[w]
+
+    return S_w_cardinalities/np.sum(S_w_cardinalities)
+
+def find_empty(counts):
+    """returns an index with not assigned vertices, if there is one
+
+    :param counts: array containing the amount of vertices/index
+    :type counts: np.array[n,dtype=int]
+    :return: index with no assigned vertices or None
+    :rtype: int/None
+    """    
     for index,count in enumerate(counts):
         if count == 0:
-            empty = index
-            break
-    # compute the image of indexing
+            return index
+    return None
+
+def compute_binary_set_mappings(indexing, counts):
+    """computes an array that contains a mapping from indices to vertices if
+    these indices carry only two vertices. in particular, every index is only
+    mapped to the lower index
+
+    :param indexing: the indexing
+    :type indexing: np.array[n,dtype=int]
+    :param counts: the amount of vertices/index
+    :type counts: np.array[n,dtype=int]
+    :return: an array A that maps indices to vertices, such that
+        A[i]=-1 if counts[i]!=2 and 
+        A[i]= v if counts[i]==2, and indexing(v)=i, [v]_indexing={v,u} and v < u 
+    :rtype: np.array[n,dtype=int]
+    """    
+    ret = np.zeros_like(indexing)-1
+    for vertex,index in enumerate(indexing):
+        if counts[index] == 2:
+            if ret[index] == -1:
+                ret[index] = vertex
+    return ret
+
+def compute_unary_set_mappings(indexing, counts):
+    """computes an array that contains a mapping from indices to vertices if 
+    these indices carry only one vertex
+
+    :param indexing: the indexing
+    :type indexing: np.array[n,dtype=int]
+    :param counts: the amount of vertices/index
+    :type counts: np.array[n,dtype=int]
+    :return: an array A that maps indices to vertices, such that
+        A[i]=-1 if counts[i]!=1 and 
+        A[i]= v if indexing(v)=i, [v]_indexing={v} 
+    :rtype: np.array[n,dtype=int]
+    """    
+    ret = np.zeros_like(indexing)-1
+    for vertex,index in enumerate(indexing):
+        if counts[index] == 1:
+            ret[index] = vertex
+    return ret
+
+def neighbours(indexing, random_stream=None):
+    """enumerates the neighbours of an indexing. the neighbourhood is defined
+    by the set of possible moves of vertices to other indices
+
+    :param indexing: the indexing
+    :type indexing: np.array[n,dtype=int]
+    :param random_stream: amount of neighbours that should be sampled from the neighbourhood.
+        if None, then every neighbour is returned
+    :type random_stream: int/None
+    :yield: iterator over the neighbours, where a neighbour is encoded as a vertex/index-pair
+    :rtype: iterator[Tuple[int,int]]
+    """
+
+    # pre-compute some necessary values
+    counts = compute_index_counts(indexing)
+    binary_sm = compute_binary_set_mappings(indexing, counts)
+    unary_sm = compute_unary_set_mappings(indexing, counts)
+    empty = find_empty(counts)
     image = [idx for idx,count in enumerate(counts) if count != 0]
     
-    def move_candidates(vertex, index, image, ridx, counts, empty):
+    def candidates(vertex, index, image, binary_sm, unary_sm, counts, empty):
+        """generates the set of possible target indices for a given vertex
+
+        :param vertex: the vertex
+        :type vertex: int
+        :param index: the current index of the vertex
+        :type index: int
+        :param image: the image of the current indexing
+        :type image: list
+        :param binary_sm: result of `compute_binary_set_mappings`
+        :type binary_sm: np.array[n,dtype=int]
+        :param unary_sm: result of `compute_unary_set_mappings`
+        :type unary_sm: np.array[n,dtype=int]
+        :param counts: number of vertices/index
+        :type counts: np.array[n,dtype=int]
+        :param empty: an index that is assigned no vertex, None is also allowed
+        :type empty: int/None
+        :yield: iterator over target indices
+        :rtype: Iterator[int]
+        """
         for k in image:
             if k == index:
                 continue
             if counts[index] > 1 or counts[k] > 1:
                 yield k
-            elif len(U_k := ridx[k]) == 1 and vertex < U_k[0]:
+            elif vertex < unary_sm[k]: # implicitly: counts[index]==1 and counts[k]==1
                 yield k
-        if counts[index] > 2 or (len(U_v:=ridx[vertex]) == 2 and vertex==U_v[0]):
+        if counts[index] > 2 or (counts[index] == 2 and vertex==binary_sm[index]):
             yield empty
-
-    candidate_vertices = [v for v in range(indexing.shape[0]) if taboo is None or not taboo[v]] 
-    if random_stream:
-        pweights = compute_probability_weights(candidate_vertices, indexing, counts, image, ridx)
-        while True:
-            vertex = np.random.choice(candidate_vertices, p=pweights)
+ 
+    if random_stream is not None:
+        # Random Move-Enumeration
+        pweights = compute_probability_weights(indexing, counts, image, binary_sm)
+        vertices = np.random.choice(indexing.shape[0], random_stream, p=pweights)
+        for vertex in vertices:
             index = indexing[vertex]
-            k_candidates = list(move_candidates(vertex, index, image, ridx, counts, empty))
-            k = k_candidates[ np.random.choice(len(k_candidates)) ]
+            ks = list(candidates(vertex, index, image, binary_sm, unary_sm, counts, empty))
+            k = random.choice(ks)
             yield vertex, k
     else:
-        for vertex in candidate_vertices:
-            index = indexing[vertex]
-            for k in move_candidates(vertex, index, image, ridx, counts, empty):
+        # Move-Enumeration
+        for vertex, index in enumerate(indexing):
+            for k in candidates(vertex, index, image, binary_sm, unary_sm, counts, empty):
                 yield vertex, k
 
-def best_move(data, 
-              indexing, 
-              cf, cf_prime, 
-              N=20, 
-              M=30,
-              taboo=None):
+def best_move(data, indexing, cf, cf_prime, N=20, M=30):
     stats = {}
-
     timer = time()
-    ns = []
-    for i,(v,k) in enumerate(neighbours(indexing, taboo=taboo, random_stream=True)):
-        if i >= N:
-            break
-        ns.append((v,k))
+    ns = list(neighbours(indexing, random_stream=N))
     stats["n_neighbours"] = len(ns)
     stats["t_neighbours"] = 1000*(time() - timer)
 
@@ -269,36 +335,14 @@ def best_move(data,
 def greedy_search(data, indexing, cf, cf_prime, stop=1000, N=None, M=None):
     if isinstance(stop,int):
         nstop = stop
-        stop = lambda i,indx: i>=nstop
+        stop = lambda i,index: i>=nstop
 
-    i = 0
-    while not stop(i,indexing):
+    for i in itertools.count(0,1):
+        if stop(i, indexing):
+            break
         (v,k), c, stats_bm = best_move(data, indexing, cf, cf_prime, N=N, M=M)
         if c > 0:
             indexing[v] = k
             yield indexing, v, k, stats_bm
         else:
             yield indexing, None, None, stats_bm
-        i += 1
-
-
-def taboo_search(data, indexing, cf, cf_prime, taboo_dur=20, stop=1000, N=None, M=None):
-    if isinstance(stop,int):
-        nstop = stop
-        stop = lambda i,indx: i>=nstop
-
-    i = 0
-    taboo = np.zeros(indexing.shape)
-    while not stop(i,indexing):
-        (v,k), c, stats_bm = best_move(data, indexing, cf, cf_prime, N=N, M=M, taboo=(taboo!=0))
-        
-        taboo[v] += taboo_dur+1
-        taboo -= 1
-        taboo = taboo.clip(0, taboo+1)
-        
-        if c > 0:
-            indexing[v] = k
-            yield indexing, v, k, stats_bm
-        else:
-            yield indexing, None, None, stats_bm
-        i += 1

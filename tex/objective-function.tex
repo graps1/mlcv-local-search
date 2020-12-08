@@ -1,0 +1,26 @@
+\section{Confronting the Objective Function}
+Since we are only interested in some minimizer $\Pi^*$ of the original problem, it does not matter which function we minimize, as long as the set of minimizers stays the same. Therefore, we can apply any strongly monotonic growing function to the objective, and, for example, multiply by some positive constant. We are then able to obtain
+\begin{align}
+    \Pi^* &= \argmin_{\Pi \in P_V} \sum\nolimits_{T\in\binom{V}{3}} \ell(T,\Pi) \label{eq:311} \\
+    &= \argmin_{\Pi \in P_V} \frac{1}{|\binom{V}{3}|} \sum\nolimits_{T\in\binom{V}{3}} \ell(T,\Pi) \label{eq:312} \\
+    &= \argmin_{\Pi \in P_V} \E_{{\bf T} \sim \Uc\left(\binom{V}{3}\right)} \left[\ell({\bf T}, \Pi)\right] \label{eq:313}
+\end{align}
+where $\Uc$ is the uniform distribution. Equality \eqref{eq:311} is just the definition of $\Pi^*$, \eqref{eq:312} is the same function multiplied by a positive value and the last equality \eqref{eq:313} is just the definition of the expected value. This perspective allows to approximate the objective value to any degree by uniformly sampling a fixed number of $3$-ary subsets from $V$ and computing the sample mean.
+
+\subsection{Computing Value Improvements}
+In many cases, one wants to compute the change in the objective function when considering two different partitions $\Pi,\Gamma \in P_V$. The difference is then given by
+\begin{align*}
+    \E_{{\bf T} \sim \Uc\left(\binom{V}{3}\right)} \left[\ell({\bf T}, \Pi)\right] - \E_{{\bf T} \sim \Uc\left(\binom{V}{3}\right)} \left[\ell({\bf T}, \Gamma)\right] &= \E_{{\bf T} \sim \Uc\left(\binom{V}{3}\right)} \left[\ell({\bf T}, \Pi) - \ell({\bf T}, \Gamma)\right] \\
+    &= \E_{{\bf T} \sim \Uc\left(\binom{V}{3}\right)} \left[\delta({\bf T}, \Pi, \Gamma)\right]
+\end{align*}
+which can possibly be simplified, dependent on the shape of $\Gamma$ with respect to $\Pi$ and vice versa. For example, if we consider an indexing $\idx$ of $V$ with $\Pi = \Pi(\idx)$ and $\Gamma = \Pi(\move{\idx}{v}{k})$, i.e. $\Gamma$ is the result of a move-operation on $\Pi$, then the above can be simplified to
+\begin{align*}
+    \E_{{\bf \{u,w\}} \sim \Uc\left(\binom{V\backslash\{v\}}{2}\right)} \left[\delta(\{{\bf u},v,{\bf w} \}, \Pi, \Gamma)\right] = J(\Pi, \Gamma),
+\end{align*}
+since $\ell(T,\Pi) = \ell(T,\Gamma)$ for all $T \in \binom{V \backslash \{ v\} }{3}$. This can be shown as follows. Take $u,w \in V\backslash\{v\}$. Then 
+\begin{align}
+    [u]_{\Pi(\idx)} = [w]_{\Pi(\idx)} &\iff \idx(u) = \idx(w)  \label{eq:321} \\
+    &\iff \move{\idx}{v}{k}(u) = \move{\idx}{v}{k}(w)  \label{eq:322} \\
+    &\iff [u]_{\Pi(\move{\idx}{v}{k})} = [w]_{\Pi(\move{\idx}{v}{k})}  \label{eq:323}
+\end{align}
+Equivalences \eqref{eq:321} and \eqref{eq:323} follow from Lemma \ref{lemma:indexing_same_set}, and \eqref{eq:322} holds since $u \neq v \neq w$. Therefore, if $T$ is a 3-ary subset of $V$ that does not contain $v$, it can be seen that the conditions that make $\ell(T,\Pi(\idx))$ or $\ell(T,\Pi(\move{\idx}{v}{k}))$ take certain values are exactly the same, which implies equality. Overall, this allows for a computation time bounded by $n^2$ if the expected value is computed explicitly. 
