@@ -1,4 +1,4 @@
-\section{Confronting the Objective Function}
+\section{Confronting the Objective Function}\label{sec:objective-function}
 Since we are only interested in some minimizer $\Pi^*$ of the original problem, it does not matter which function we minimize, as long as the set of minimizers stays the same. Therefore, we can apply any strongly monotonic growing function to the objective, and, for example, multiply by some positive constant. We are then able to obtain
 \begin{align}
     \Pi^* &= \argmin_{\Pi \in P_V} \sum\nolimits_{T\in\binom{V}{3}} \ell(T,\Pi) \label{eq:311} \\
@@ -23,4 +23,4 @@ since $\ell(T,\Pi) = \ell(T,\Gamma)$ for all $T \in \binom{V \backslash \{ v\} }
     &\iff \move{\idx}{v}{k}(u) = \move{\idx}{v}{k}(w)  \label{eq:322} \\
     &\iff [u]_{\Pi(\move{\idx}{v}{k})} = [w]_{\Pi(\move{\idx}{v}{k})}  \label{eq:323}
 \end{align}
-Equivalences \eqref{eq:321} and \eqref{eq:323} follow from Lemma \ref{lemma:indexing_same_set}, and \eqref{eq:322} holds since $u \neq v \neq w$. Therefore, if $T$ is a 3-ary subset of $V$ that does not contain $v$, it can be seen that the conditions that make $\ell(T,\Pi(\idx))$ or $\ell(T,\Pi(\move{\idx}{v}{k}))$ take certain values are exactly the same, which implies equality. Overall, this allows for a computation time bounded by $n^2$ if the expected value is computed explicitly. 
+Equivalences \eqref{eq:321} and \eqref{eq:323} follow from Lemma \ref{lemma:indexing_same_set}, and \eqref{eq:322} holds since $u \neq v \neq w$. Therefore, if $T$ is a 3-ary subset of $V$ that does not contain $v$, it can be seen that the conditions that make $\ell(T,\Pi(\idx))$ or $\ell(T,\Pi(\move{\idx}{v}{k}))$ take certain values are exactly the same, which implies equality. Overall, this allows for a computation time bounded by $|V|^2$ if the expected value is computed explicitly. 

@@ -12,3 +12,6 @@ tex/*.synctex.gz
 *.ipynb_checkpoints
 *__pycache__
 mlcv.code-workspace
+*data.csv
+*meta.csv
+*runs.csv

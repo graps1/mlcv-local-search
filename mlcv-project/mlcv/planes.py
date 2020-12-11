@@ -66,8 +66,8 @@ def generate_points(
     :type noise: list, optional
     :param distribution: The points/plane distribution, defaults to [400, 400, 400, 400]
     :type distribution: list, optional
-    :return: A DataFrame with columns x,y,z,label
-    :rtype: pandas.DataFrame
+    :return: an array containing the points and an array containing the corresponding partitions
+    :rtype: Tuple[np.array[n,3,dtype=float],np.array[n,dtype=int]]
     """    
 
     nr_planes = len(distribution)

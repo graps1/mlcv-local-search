@@ -328,8 +328,12 @@ def best_move(data, indexing, cf, cf_prime, N=20, M=30):
         if bestpair is None or rc > best_rcost:
             bestpair = v,k
             best_rcost = rc
-    stats["t_rcs"] = {"mean": np.mean(dt_rcs), "std": np.std(dt_rcs), "sum": np.sum(dt_rcs)}
+
+    stats["t_rcs_mean"] = np.mean(dt_rcs)
+    stats["t_rcs_std"]  = np.std(dt_rcs)
+    stats["t_rcs_sum"]  = np.sum(dt_rcs)
     stats["rc"] = best_rcost
+    stats["partcount"] = np.unique(indexing).shape[0]
     return bestpair, best_rcost, stats
 
 def greedy_search(data, indexing, cf, cf_prime, stop=1000, N=None, M=None):

@@ -1,7 +1,7 @@
-\section{Indexings as Proxies for Partitions}
+\section{Indexings as Proxies for Partitions}\label{sec:indexings}
 Since we want to use a local search algorithm that iteratively finds better solutions (partitions in this case), we want to consider on how we want to represent said partitions. One may represent a partition as a set of sets of vertices, which is probably the most straight-forward approach. On the one hand, the required space is linear in $|V|$. But on the other hand, this comes with a few problems: checking if two vertices are part of the same set, and the removal and the addition of a vertex from or to a set all require $|V|$ steps in the worst case (if all vertices have the same set). A last problem is that one has to gurantee feasibility at every step, i.e. that every solution is indeed a partition. A second idea might be to store a partition as a $|V| \times |V|$ boolean matrix, where every row corresponds to a vertex and every column to a set in the partition, and an entry at position $i,j$ would mean ``vertex $i$ is part of set $j$'' if $1$ and ``vertex $i$ is not part of set $j$'' if $0$. This would alleviate some of the above problems, since looking up, removal or addition of vertices to sets would take constant time in the worst case. However, storing a partition would require $|V|^2$ units of space, which might become problematic when $|V|$ is large or when considering multiple partitions at once.
 
-Therefore, we will use the following concept of indexings (which are similar to equivalence relations) to solve the above problems, i.e. to simplify and speed up operations on partitions. Every vertex is mapped to a number (index) which indicates the set in the partition we want this vertex to be a part of. If multiple vertices are mapped to the same index, they will be part of the same set in the partition. Since there are at maximum $|V|$ sets in a partition of $V$ (every vertex is assigned its own set, i.e. the indexing is bijective), we restrict to indices between $1$ and $|V|$. Note that every indexing can be stored in a linear amount of memory dependent on the size of $V$.
+Therefore, we will use the following concept of indexings (which induce equivalence relations on $V$) to solve the above problems, i.e. to simplify and speed up operations on partitions. Every vertex is mapped to a number (index) which indicates the set in the partition we want this vertex to be a part of. If multiple vertices are mapped to the same index, they will be part of the same set in the partition. Since there are at maximum $|V|$ sets in a partition of $V$ (every vertex is assigned its own set, i.e. the indexing is bijective), we restrict to indices between $1$ and $|V|$. Note that every indexing can be stored in space $O(|V|)$.
 
 
 \begin{figure}[ht]
@@ -52,7 +52,7 @@ Therefore, we will use the following concept of indexings (which are similar to 
 \end{figure}
 
 \begin{definition}
-    Let $V = \{ v_1,v_2,\dots, v_n \}$ of vertices. An indexing of $V$ is a mapping $\idx \in \{ 1,\dots,n \}^V = [n]^V$ that associates every vertex with a number from 1 to $n$. \label{def:indexings}
+    Let $V = \{ v_1,v_2,\dots, v_n \}$ be a set of vertices. An indexing of $V$ is a mapping $\idx \in \{ 1,\dots,n \}^V = [n]^V$ that associates every vertex with a number from 1 to $n$. \label{def:indexings}
 \end{definition}
 
 \begin{definition}
@@ -63,7 +63,7 @@ Therefore, we will use the following concept of indexings (which are similar to 
     where $[v]_\idx = \{ w \in V : \idx(w) = \idx(v) \}$. \label{def:indexing_partition}
 \end{definition}
 
-Based on definition \ref{def:indexings} and \ref{def:indexing_partition}, we are able to obtain some immediate results (proofs that are too long are in the appendix). First, we are able to use indexings as representations for partitions, i.e. for every partition, there is some indexing that yields that very partition (Lemma \ref{lemma:indexing_partition}). And two, we obtain a criteria that makes it possible to check when two vertices share the same set in the partition (Lemma \ref{lemma:indexing_same_set}).  
+Based on definition \ref{def:indexings} and \ref{def:indexing_partition}, we are able to obtain some immediate results. First, we are able to use indexings as representations for partitions, i.e. for every partition, there is some indexing that yields that very partition (Lemma \ref{lemma:indexing_partition}). And two, we obtain a criteria that makes it possible to check when two vertices share the same set in the partition (Lemma \ref{lemma:indexing_same_set}).  
 
 \begin{lemmarep}
     $\Pi$ partitions $V$ if and only if there exists an indexing of $V$ that induces $\Pi$.\label{lemma:indexing_partition}
