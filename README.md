@@ -1,0 +1,1 @@
+This repository contains local-search-algorithms which solve (...or at least approximate) solutions to the set-partitioning-problem with cost-functions over 3-ary subsets. Requirements: pandas, numpy, matplotlib.
