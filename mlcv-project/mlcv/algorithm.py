@@ -35,10 +35,10 @@ def partial_cost(data, indexing, combinations, cf, cf_prime):
     :type combinations: np.array[m,3,dtype=int]
     :param cf: cost function c that computes the cost of a dataset 
         w.r.t. a selection of 3-ary subsets
-    :type cf: function with cf : np.array[n,3,dtype=float] x np.array[m,3,dtype=int] -> float
+    :type cf: np.array[n,3,dtype=float] x np.array[m,3,dtype=int] -> np.array[m,dtype=float]
     :param cf_prime: cost function c' that computes the cost of a dataset 
         w.r.t. a selection of 3-ary subsets
-    :type cf_prime: function cf_prime : np.array[n,3,dtype=float] x np.array[m,3,dtype=int] -> float
+    :type cf_prime: np.array[n,3,dtype=float] x np.array[m,3,dtype=int] -> np.array[m,dtype=float]
     :return: the costs of the dataset w.r.t. the indexing and the subset-selection
     :rtype: float
     """
@@ -76,10 +76,10 @@ def cost(data, indexing, cf, cf_prime, uvw_sample_count=None):
     :type indexing: np.array[n,dtype=int]
     :param cf: cost function c that computes the cost of a dataset 
         w.r.t. a selection of 3-ary subsets
-    :type cf: function with cf : np.array[n,3,dtype=float] x np.array[m,3,dtype=int] -> float
+    :type cf: np.array[n,3,dtype=float] x np.array[m,3,dtype=int] -> np.array[m,dtype=float]
     :param cf_prime: cost function c' that computes the cost of a dataset 
         w.r.t. a selection of 3-ary subsets
-    :type cf_prime: function cf_prime : np.array[n,3,dtype=float] x np.array[m,3,dtype=int] -> float
+    :type cf_prime: np.array[n,3,dtype=float] x np.array[m,3,dtype=int] -> np.array[m,dtype=float]
     :return: the costs of the dataset w.r.t. the indexing
     :rtype: float
     """
@@ -104,10 +104,10 @@ def reduced_cost(data, indexing, cf, cf_prime, v, k, uw_sample_count=None):
     :type indexing: np.array[n,dtype=int]
     :param cf: cost function c that computes the cost of a dataset 
         w.r.t. a selection of 3-ary subsets
-    :type cf: function with cf : np.array[n,3,dtype=float] x np.array[m,3,dtype=int] -> float
+    :type cf: np.array[n,3,dtype=float] x np.array[m,3,dtype=int] -> np.array[m,dtype=float]
     :param cf_prime: cost function c' that computes the cost of a dataset 
         w.r.t. a selection of 3-ary subsets
-    :type cf_prime: function cf_prime : np.array[n,3,dtype=float] x np.array[m,3,dtype=int] -> float
+    :type cf_prime: np.array[n,3,dtype=float] x np.array[m,3,dtype=int] -> np.array[m,dtype=float]
     :param v: the vertex that is selected
     :type v: int
     :param k: the index the vertex is moved to
@@ -313,6 +313,28 @@ def neighbours(indexing, random_stream=None):
                 yield vertex, k
 
 def best_move(data, indexing, cf, cf_prime, N=20, M=30):
+    """computes the best (or a good) move
+
+    :param data: array containing the points
+    :type data: np.ndarray[n,3,dtype=float]
+    :param indexing: initial indexing
+    :type indexing: np.ndarray[n,dtype=int]
+    :param cf: cost function c that computes the cost of a dataset 
+        w.r.t. a selection of 3-ary subsets
+    :type cf: np.array[n,3,dtype=float] x np.array[m,3,dtype=int] -> np.array[m,dtype=float]
+    :param cf_prime: cost function c' that computes the cost of a dataset 
+        w.r.t. a selection of 3-ary subsets
+    :type cf_prime: np.array[n,3,dtype=float] x np.array[m,3,dtype=int] -> np.array[m,dtype=float]
+    :param N: number of neighbours to be sampled. If None, then the complete neighbourhood is 
+        cosidered, defaults to 20
+    :type N: int, optional
+    :param M: number of vertex-samples for estimating the cost-function. If None, then the
+        costs are computed explicitly, defaults to 30
+    :type M: int, optional
+    :return: a tuple containing the vertex that is moved, the target index and a dictionary
+        containing more information
+    :rtype: Tuple[int,int,Dict]
+    """    
     stats = {}
     timer = time()
     ns = list(neighbours(indexing, random_stream=N))
@@ -337,6 +359,34 @@ def best_move(data, indexing, cf, cf_prime, N=20, M=30):
     return bestpair, best_rcost, stats
 
 def greedy_search(data, indexing, cf, cf_prime, stop=1000, N=None, M=None):
+    """implementation of the greedy search algorithm. iterates until the stopping criterion
+    was met, or, if N and M were set to None, until no improving neighbour can be found.
+
+    :param data: array containing the points
+    :type data: np.ndarray[n,3,dtype=float]
+    :param indexing: initial indexing
+    :type indexing: np.ndarray[n,dtype=int]
+    :param cf: cost function c that computes the cost of a dataset 
+        w.r.t. a selection of 3-ary subsets
+    :type cf: np.array[n,3,dtype=float] x np.array[m,3,dtype=int] -> np.array[m,dtype=float]
+    :param cf_prime: cost function c' that computes the cost of a dataset 
+        w.r.t. a selection of 3-ary subsets
+    :type cf_prime: np.array[n,3,dtype=float] x np.array[m,3,dtype=int] -> np.array[m,dtype=float]
+    :param stop: function that returns False if algorithm should continue and True otherwise,
+        can also be a number, in which case the algorithm stops after the given amount of iterations
+        was met, defaults to 1000
+    :type stop: int or function int x np.ndarray[n,dtype=int] -> {True,False}, optional
+    :param N: number of neighbours to be sampled. If None, then the complete neighbourhood is 
+        cosidered, defaults to None
+    :type N: int, optional
+    :param M: number of vertex-samples for estimating the cost-function. If None, then the
+        costs are computed explicitly, defaults to None
+    :type M: int, optional
+    :yield: an iterator such that every element is a tuple containing the current indexing, the
+        vertex that was previously moved, the target index and a dictionary containing other
+        information
+    :rtype: Iterator[Tuple[np.ndarray[n,dtype=int], int, int, Dict]]
+    """    
     if isinstance(stop,int):
         nstop = stop
         stop = lambda i,index: i>=nstop
