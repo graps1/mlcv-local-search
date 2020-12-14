@@ -350,3 +350,5 @@ def greedy_search(data, indexing, cf, cf_prime, stop=1000, N=None, M=None):
             yield indexing, v, k, stats_bm
         else:
             yield indexing, None, None, stats_bm
+            if M is None and N is None:
+                break

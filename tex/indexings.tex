@@ -48,6 +48,7 @@ Therefore, we will use the following concept of indexings (which induce equivale
     \draw[rounded corners=5pt, dashed] (6-0.5,3-0.45) rectangle (6+0.5,3+1.45);
 
     \end{tikzpicture}
+    \captionsetup{width=.9\linewidth}
     \caption{Illustration of two indexings $\idx,\varidx$ with corresponding partitions and proof of equality through part (b) of Theorem \ref{theorem:equal_indexings}.}\label{fig:indexings}
 \end{figure}
 
@@ -63,12 +64,14 @@ Therefore, we will use the following concept of indexings (which induce equivale
     where $[v]_\idx = \{ w \in V : \idx(w) = \idx(v) \}$. \label{def:indexing_partition}
 \end{definition}
 
-Based on definition \ref{def:indexings} and \ref{def:indexing_partition}, we are able to obtain some immediate results. First, we are able to use indexings as representations for partitions, i.e. for every partition, there is some indexing that yields that very partition (Lemma \ref{lemma:indexing_partition}). And two, we obtain a criteria that makes it possible to check when two vertices share the same set in the partition (Lemma \ref{lemma:indexing_same_set}).  
+Based on definition \ref{def:indexings} and \ref{def:indexing_partition}, we are able to obtain some immediate results. First, we are able to use indexings as representations for partitions, i.e. for every partition, there is some indexing that yields that very partition (Lemma \ref{lemma:indexing_partition}). And two, we obtain a criterion that makes it possible to check when two vertices share the same set in the partition (Lemma \ref{lemma:indexing_same_set}).  
 
-\begin{lemmarep}
-    $\Pi$ partitions $V$ if and only if there exists an indexing of $V$ that induces $\Pi$.\label{lemma:indexing_partition}
-\end{lemmarep}
-\begin{\appendixproof}
+\begin{samepage}
+    \begin{lemmarep}
+        $\Pi$ partitions $V$ if and only if there exists an indexing of $V$ that induces $\Pi$.\label{lemma:indexing_partition}
+    \end{lemmarep}
+\end{samepage}
+\begin{proof}
     First, we will show the direction from left to right. Let $\Pi = \{U_1,\dots,U_m\}$, $1\leq m \leq n$, be a partition of $V$. For all vertices $v$ with corresponding set $U_i$ in $\Pi$ (of which there is exactly one), we define $\idx(v) = i$. For a $j \in \{1,\dots,m\}$ we then obtain $\idx^{-1}(j) = U_j$. But then $\Pi(\idx) = \Pi$, i.e. $\Pi$ is induced by $\idx$. 
     \\
     The other direction requires us to prove that every indexing induces a partition of $V$. I.e., for an indexing $\idx$ of $V$ with $\Pi(\idx)=\Pi$, we need to check the following requirements:
@@ -78,26 +81,30 @@ Based on definition \ref{def:indexings} and \ref{def:indexing_partition}, we are
         \item if $U_1,U_2 \in \Pi$ and $U_1 \neq U_2$, then $U_1 \cap U_2 = \emptyset$:\quad Take two $U_1, U_2 \in \Pi$ with $U_1 \neq U_2$ such that $U_1 = [w]_\idx$ and $U_2 = [u]_\idx$ for two vertices $w$ and $u$. Assume for a contradiction that $U_1 \cap U_2 \neq \emptyset$, i.e. there exists $v \in U_1 \cap U_2$. But then $v \in [w]_\idx$ and $v \in [u]_\idx$. Thus, $\idx(v) = \idx(w) = \idx(u)$, which cannot be the case, since that would imply $U_1 = U_2$.
     \end{enumerate}
     This completes the proof.
-\end{\appendixproof}
+\end{proof}
 
-\begin{lemmarep}
-    Let $\idx$ be an indexing of $V$. For all vertices $v,u$, we have $\idx(v) = \idx(u)$ if and only if $v$ and $u$ are part of the same set in $\Pi(\idx)$. \label{lemma:indexing_same_set}
-\end{lemmarep}
-\begin{\appendixproof}
+\begin{samepage}
+    \begin{lemmarep}
+        Let $\idx$ be an indexing of $V$. For all vertices $v,u$, we have $\idx(v) = \idx(u)$ if and only if $v$ and $u$ are part of the same set in $\Pi(\idx)$. \label{lemma:indexing_same_set}
+    \end{lemmarep}
+\end{samepage}
+\begin{proof}
     For the direction from left to right, take $v,u\in V$ such that $\idx(v)=\idx(u)$. Then $v,u \in [v]_\idx = [u]_\idx \in \Pi(\idx)$, i.e. they are part of the same set. For the other direction, we will show the contraposition. Take $v,u\in V$ such that $\idx(v)\neq \idx(u)$. Clearly, $v \in [v]_\idx$ and $v \not\in [u]_\idx$ as well as $u \in [u]_\idx$ and $u \not\in [v]_\idx$. Therefore $[v]_\idx \neq [u]_\idx$. Since by Lemma \ref{lemma:indexing_partition}, $\Pi(\idx)$ is a partition and $[v]_\idx$ and $[u]_\idx$ are distinct sets in $\Pi(\idx)$, $[v]_\idx$ is the only set that contains $v$ and vice versa for $[u]_\idx$ and $u$. Thus, $v$ and $u$ cannot be part of the same set in $\Pi(\idx)$. 
-\end{\appendixproof}
+\end{proof}
 
 Since we want to use indexings in order to define transformations on partitions, we are interested in the question when two indexings are ``equal'', in the sense that they induce the same partition. This is characterized in part by Theorem \ref{theorem:equal_indexings}.
 
-\begin{theoremrep}
-    If $\idx,\varidx$ are two indexings of $V$, then the following statements are equivalent:
-    \begin{enumerate}
-        \item[(a)] $\Pi(\idx)=\Pi(\varidx)$
-        \item[(b)] there is a bijection $\lambda : \image(\idx) \rightarrow \image(\varidx)$\footnote{$\image(\idx)$ means the image of $\idx$, i.e. $\image(\idx)=\{ \idx(v) \}_{v \in V}$.} such that $\lambda(\idx(v)) = \varidx(v)$ \\ for all $v \in V$
-        \item[(c)] for all vertices $v,w$, $\idx(w) = \idx(v)$ if and only if $\varidx(w) = \varidx(v)$
-    \end{enumerate} \label{theorem:equal_indexings}
-\end{theoremrep}
-\begin{\appendixproof}
+\begin{samepage}
+    \begin{theoremrep}
+        If $\idx,\varidx$ are two indexings of $V$, then the following statements are equivalent:
+        \begin{enumerate}
+            \item[(a)] $\Pi(\idx)=\Pi(\varidx)$
+            \item[(b)] there is a bijection $\lambda : \image(\idx) \rightarrow \image(\varidx)$\footnote{$\image(\idx)$ means the image of $\idx$, i.e. $\image(\idx)=\{ \idx(v) \}_{v \in V}$.} such that $\lambda(\idx(v)) = \varidx(v)$ \\ for all $v \in V$
+            \item[(c)] for all vertices $v,w$, $\idx(w) = \idx(v)$ if and only if $\varidx(w) = \varidx(v)$
+        \end{enumerate} \label{theorem:equal_indexings}
+    \end{theoremrep}
+\end{samepage}
+\begin{proof}
     We will start with the direction from (a) to (b). Let $\idx$, $\varidx$ be two indexings of $V$ with $\Pi(\idx) = \Pi(\varidx)$. We define $\lambda : \image(\idx)\rightarrow \image(\varidx)$ as follows. For all $k \in \image(\idx)$, associate a vertex $v$ such that $\idx(v)=k$. Then define $\lambda(k)=\varidx(v)$. It remains to show that $\lambda$ fulfills the requirements in (b):
     \begin{enumerate}
         \item $\lambda$ is bijective:\quad Since every element in $\image(\idx)$ corresponds to a set in $\Pi(\idx)$, and vice versa for $\image(\varidx)$ and $\Pi(\varidx)$, we get $|\image(\idx)|=|\Pi(\idx)|=|\Pi(\varidx)|=|\image(\varidx)|$. Since $\image(\idx)$ and $\image(\varidx)$ are also finite, it suffices to show injectivity of $\lambda$ in order to prove bijectivity. Assume for a contradiction that $\lambda$ is not injective, i.e. there are $v_1,v_2 \in V, \idx(v_1) \neq \idx(v_2)$, such that $\lambda(\idx(v_1))=\lambda(\idx(v_2))=\varidx(v_1)=\varidx(v_2)$. Thus, by application of Lemma \ref{lemma:indexing_same_set}, there must be a set in $\Pi(\varidx)$ that contains $v_1$ and $v_2$, while there is no set in $\Pi(\idx)$ that has both vertices in it. But then $\Pi(\idx)\neq \Pi(\varidx)$. Contradiction.
@@ -118,6 +125,6 @@ Since we want to use indexings in order to define transformations on partitions,
         &\quad\text{iff}\quad U \in \Pi(\varidx),
     \end{align*}
     which shows $\Pi(\idx)=\Pi(\varidx)$.
-\end{\appendixproof}
+\end{proof}
 
-If the task is to determine whether two induced partitions $\Pi(\idx)$, $\Pi(\varidx)$ for given indexings $\idx,\varidx$ of $V$ are equal, the result of Theorem \ref{theorem:equal_indexings} might be useful: instead of explicitly computing the resulting partitions and checking if both sets are equal, one can simply determine whether a fitting bijection $\lambda$ exists, which is arguably easier. In fact, one can construct $\lambda$ as in the first part of the proof of Lemma \ref{theorem:equal_indexings} and then check whether the result is a bijection or not. Figure \ref{fig:indexings} illustrates two indexings, their partitions and some of the findings of Theorem \ref{theorem:equal_indexings}.
+If the task is to determine whether two induced partitions $\Pi(\idx)$, $\Pi(\varidx)$ for given indexings $\idx,\varidx$ of $V$ are equal, the result of Theorem \ref{theorem:equal_indexings} might be useful: instead of explicitly computing the resulting partitions and checking if both sets are equal, one can simply determine whether a fitting bijection $\lambda$ exists, which is arguably easier. In fact, one can construct $\lambda$ as in the first part of the proof of Theorem \ref{theorem:equal_indexings} and then check whether the result is a bijection or not. Figure \ref{fig:indexings} illustrates two indexings, their partitions and some of the findings of Theorem \ref{theorem:equal_indexings}.

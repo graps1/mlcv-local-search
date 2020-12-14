@@ -1,4 +1,4 @@
-\documentclass[11pt,a4paper]{article}
+\documentclass[hidelinks,12pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{tikz}
 \usetikzlibrary{decorations.pathreplacing}
@@ -15,6 +15,7 @@
 \usepackage{hyperref}
 \usepackage{subcaption}
 \usepackage{lscape}
+\usepackage{caption}
 
 %\usepackage{ccfonts}
 %\usepackage[adobe-utopia]{mathdesign}
@@ -27,7 +28,6 @@
 \usepackage{libertinus}
 \usepackage{fdsymbol}
 \usepackage[T1]{fontenc}
-
 
 \usepackage[ruled,vlined,linesnumbered,noend]{algorithm2e}
 \usepackage{setspace}
@@ -83,24 +83,31 @@
 % \newtheoremrep{lemma}[theorem]{Lemma}
 \newtheorem{definition}{Definition}[section]
 
-% \usepackage{apxproof}
-\newtheorem{theorem}{Theorem}[section]
-\newtheorem{corollary}{Corollary}[theorem]
-\newtheorem{lemma}[theorem]{Lemma}
-\newtheorem{theoremrep}{Theorem}[section]
-\newtheorem{corollaryrep}{Corollary}[theorem]
-\newtheorem{lemmarep}[theorem]{Lemma}
-\newcommand{\appendixproof}{proof}
+\usepackage[appendix=append]{apxproof}
+\newtheoremrep{theorem}{Theorem}[section]
+\newtheoremrep{corollary}{Corollary}[theorem]
+\newtheoremrep{lemma}[theorem]{Lemma}
+
+\makeatletter
+\newcommand*{\algotitle}[2]{%
+  \stepcounter{algocf}%
+  \hypertarget{algocf.title.\theHalgocf}{}%
+  \NR@gettitle{#1}%
+  \label{#2}%
+  \addtocounter{algocf}{-1}%
+}
+\makeatother
+
+\title{A Local Search Algorithm for Cubic Clustering}
+\author{Hans Harder, TU Dresden}
+\date{}
 
 \begin{document}
 
+\maketitle
+
 \tableofcontents
 \newpage
-
-% Problem with multicuts: they require a lot of store, since they are bounded by |V|^2.
-% Thus, focus on partition-perspective on problem.
-% Problem with partitions in set-format: hard to check equalities between partitions set-format and transformations require set-operations that might take a lot of time.
-% Therefore: introduce indexings
 
 \input{introduction.tex}
 \input{indexings.tex}

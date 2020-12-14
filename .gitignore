@@ -9,6 +9,10 @@ tex/*.fdb_latexmk
 tex/*.fls
 tex/*.log
 tex/*.synctex.gz
+tex/*.bbl
+tex/*.blg
+tex/*.out
+tex/*.toc
 *.ipynb_checkpoints
 *__pycache__
 mlcv.code-workspace
