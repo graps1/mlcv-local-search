@@ -92,7 +92,7 @@
 %	TITLE PAGE
 %----------------------------------------------------------------------------------------
 
-\title[A Local Search Algorithm for Cubic Clustering]{A Local Search Algorithm for Cubic Clustering}
+\title[A Local Search Algorithm for Cubic Clustering]{A Local Search Algorithm for Cubic Clustering\footnote{\url{https://github.com/graps1/mlcv-local-search}}}
 \author{Hans Harder}\institute[TU Dresden]{
 TU Dresden \\\medskip
 \textit{hans.harder@mailbox.tu-dresden.de}}
@@ -103,11 +103,7 @@ TU Dresden \\\medskip
 \begin{document}
 
 \begin{frame}
-\titlepage\end{frame}
-
-\begin{frame}
-\frametitle{Overview}
-\tableofcontents
+\titlepage
 \end{frame}
 
 \section{Problem}
@@ -128,7 +124,7 @@ TU Dresden \\\medskip
         \item random variable ``distributed as'' $\xf \sim \Qc$
         \item uniform distribution over a finite set $A$: $\Uc(A)$
         \item domain of a random variable $\xf$: $\dom(\xf)$ (e.g. $\dom(\xf) = \R$)
-        \item expected value for $\xf \sim \Qc$ and $f : \dom(\xf) \rightarrow \R$ and $\dom(\xf)$ finite: $$\E_{\xf \sim \Qc}\left[ f(\xf) \right] = \sum_{x \in \dom(\xf)} \Qc(x) f(x)$$
+        \item expected value for $\xf \sim \Qc$ and $f : \dom(\xf) \rightarrow \R$ and $\dom(\xf)$ finite: $$\E_{\xf \sim \Qc}\left[ f(\xf) \right] = \sum_{x \in \dom(\xf)} \Qc(x) f(x)$$ if it is clear from the context, $\E_{\xf \sim \Qc}\left[ f(\xf) \right] = \E_{\xf}\left[ f(\xf) \right] = \E \left[ f(\xf) \right] $.
     \end{itemize}
 \end{frame}
 
@@ -180,6 +176,16 @@ TU Dresden \\\medskip
     \begin{itemize}
         \item efficient sampling of neighbours from the neighbourhood
         \item approximation of the reduced costs
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \begin{itemize}
+        \item Data Structure
+        \item \textcolor{gray}{Neighbourhood and Neighbourhood Enumeration}
+        \item \textcolor{gray}{Computing the (Reduced) Costs}
+        \item \textcolor{gray}{Algorithms}
+        \item \textcolor{gray}{Experiments}
     \end{itemize}
 \end{frame}
 
@@ -235,6 +241,17 @@ TU Dresden \\\medskip
     $\idx$ and $\varidx$ are different, but yield the same partition.
 \end{frame}
 
+
+\begin{frame}
+    \begin{itemize}
+        \item \textcolor{gray}{Data Structure}
+        \item Neighbourhood and Neighbourhood Enumeration
+        \item \textcolor{gray}{Computing the (Reduced) Costs}
+        \item \textcolor{gray}{Algorithms}
+        \item \textcolor{gray}{Experiments}
+    \end{itemize}
+\end{frame}
+
 \subsection*{Neighbourhood Enumeration}
 \begin{frame}{Neighbourhood of an Indexing}
     we define the following transformation:
@@ -256,8 +273,8 @@ TU Dresden \\\medskip
     We want to find an efficient enumeration of possible ``moves'' $(w_1,k_1),\dots,(w_m,k_m) \in V \times \{1,\dots,n\}$ such that
     \begin{itemize}
         \item we do not enumerate ``too much'', i.e. $\Pi(\move{\idx}{w_1}{k_1}),\dots,\Pi(\move{\idx}{w_m}{k_m})$ are all pairwise distinct,
-        \item all neighbours occur somewhere in this enumeration, i.e. if $\Pi \in Ne(\Pi(\idx))$, then $\Pi = \Pi(\move{\idx}{w_i}{k_i})$ for a $(w_i,k_i)$, 
-        \item we do not enumerate $\Pi(\idx)$ itself, i.e. $\Pi(\move{\idx}{w_i}{k_i}) \neq \Pi(\idx)$ for all $(w_i,k_i)$.
+        \item all neighbours occur somewhere in this enumeration, i.e. if $\Pi \in Ne(\Pi(\idx))$, then $\Pi = \Pi(\move{\idx}{w_i}{k_i})$ for a $1 \leq i \leq m$, 
+        \item we do not enumerate $\Pi(\idx)$ itself, i.e. $\Pi(\move{\idx}{w_i}{k_i}) \neq \Pi(\idx)$ for all $1 \leq i \leq m$.
     \end{itemize} 
 \end{frame}
 
@@ -301,7 +318,7 @@ TU Dresden \\\medskip
     \begin{block}{No self-neighbour}
         $\Pi(\idx) \neq \Pi(\move{\idx}{w_i}{k_i})$ for all $1 \leq i \leq m$.
     \end{block}
-    (proofs omitted, see report at \url{https://github.com/graps1/mlcv-local-search/blob/master/tex/main.pdf}).
+    (proofs omitted, see report\footnote{\url{https://github.com/graps1/mlcv-local-search/blob/master/tex/main.pdf}}).
 \end{frame}
 
 \subsection*{Randomized Neighbourhood Enumeration}
@@ -317,6 +334,17 @@ TU Dresden \\\medskip
             \item sampling from $\Qc(\wf)$ and $\Pc(\kf|\wf)$ can be done efficiently (see report for more details).
             \item this yields an algorithm \textsc{Random-Move-Enumeration} that samples $N$ neighbours in $O(|V|\cdot N)$.
         \end{itemize}
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}
+    \begin{itemize}
+        \item \textcolor{gray}{Data Structure}
+        \item \textcolor{gray}{Neighbourhood and Neighbourhood Enumeration}
+        \item Computing the (Reduced) Costs
+        \item \textcolor{gray}{Algorithms}
+        \item \textcolor{gray}{Experiments}
     \end{itemize}
 \end{frame}
 
@@ -344,6 +372,17 @@ TU Dresden \\\medskip
     \end{alignat*}
     since $\ell(T,\Pi(\idx)) = \ell(T,\Pi(\move{\idx}{v}{k}))$ whenever $v \not\in T$.\\
     $\rightarrow$ computing the reduced costs $J$ is in $O(|V|^2)$.
+\end{frame}
+
+
+\begin{frame}
+    \begin{itemize}
+        \item \textcolor{gray}{Data Structure}
+        \item \textcolor{gray}{Neighbourhood and Neighbourhood Enumeration}
+        \item \textcolor{gray}{Computing the (Reduced) Costs}
+        \item Algorithms
+        \item \textcolor{gray}{Experiments}
+    \end{itemize}
 \end{frame}
 
 \section{Algorithms}
@@ -398,7 +437,17 @@ TU Dresden \\\medskip
     \textbf{Complexity:} line 2 is in $O(|V|\cdot N)$, line 3 and 4 are both in $O(M \cdot N)$, and line 5 and 6 are doable in constant time. This yields a complexity of $O(N \cdot (M + |V|))$ per iteration. 
 \end{frame}
 
-\section{Implementation and Scenario}
+\begin{frame}
+    \begin{itemize}
+        \item \textcolor{gray}{Data Structure}
+        \item \textcolor{gray}{Neighbourhood and Neighbourhood Enumeration}
+        \item \textcolor{gray}{Computing the (Reduced) Costs}
+        \item \textcolor{gray}{Algorithms}
+        \item Experiments
+    \end{itemize}
+\end{frame}
+
+\section{Scenario}
 \begin{frame}{Scenario}
     \textbf{given:} set of points in $\R^3$ that are sampled with noise from 2-5 random planes going through the origin (without knowing from which plane a point stems).\\
     \textbf{goal:} figure out original set of planes by partitioning the points.
@@ -423,15 +472,6 @@ TU Dresden \\\medskip
         \item if the distance between the plane formed by $\{u,v,w\}$ to the origin is larger than $\tau$, $u,v,w$ probably don't belong to the same partition (plane) $\rightarrow$ positive costs.
         \item if the distance is smaller respectively, they probably belong to the same partition (plane) $\rightarrow$ negative costs.
     \end{itemize} 
-\end{frame}
-
-\begin{frame}{Implementation}
-    \begin{itemize}
-        \item implemented in Python 3,
-        \item distances are computed in batches using \texttt{numpy},
-        \item visualization using \texttt{matplotlib},
-        \item processing of experimental results using \texttt{pandas}
-    \end{itemize}
 \end{frame}
 
 \section{Results}
@@ -500,17 +540,6 @@ TU Dresden \\\medskip
     \end{figure}
 \end{frame}
 
-% \begin{frame}
-%     We want to keep this representation:
-%     \begin{itemize}
-%         \item can be stored in $O(|V|)$\footnote{...one might argue that this is actually in $O(|V| \log_2 |V|)$ because one requires $\log_2 n$ bits to store numbers from $1$ to $n$ -- however, most programming languages use fixed lengths for integers.}
-%         \item elements can be moved from one index to another in $O(1)$
-%         \item comparing the equivalence of two indexings $\idx$, $\varidx$ (i.e. whether their induced partitions are the same) is doable in $O(|V|)$\footnote{see my report for more details.} 
-%         \pause
-%         \item but we need to find a way to enumerate the neighbourhood efficiently
-%     \end{itemize}
-% \end{frame}
-
 \begin{frame}
     \textbf{Conclusion.}
     \begin{itemize}
@@ -537,6 +566,5 @@ TU Dresden \\\medskip
 %     \bibliography{main}{}
 %     \bibliographystyle{plain}
 % \end{frame}
-
 
 \end{document} 
